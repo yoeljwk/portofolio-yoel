@@ -17,7 +17,7 @@ const Footer = () => {
         <div className="grid grid-cols-4 gap-8 lg:grid-cols-2 md:grid-cols-1 md:gap-6">
           {/* About Us */}
           <div>
-            <h3 className="text-purple-400 font-semibold text-lg mb-4">
+            <h3 className="text-light font-semibold text-sm mb-2">
               About Us
             </h3>
             <p className="text-sm leading-relaxed">
@@ -26,7 +26,7 @@ const Footer = () => {
           </div>
           {/* General */}
           <div>
-            <h3 className="text-purple-400 font-semibold text-lg mb-4">
+            <h3 className="text-light font-semibold text-sm mb-2">
               General
             </h3>
             <ul className="space-y-2">
@@ -57,12 +57,11 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Connect */}
           <div>
-            <h3 className="text-purple-400 font-semibold text-lg mb-4">
+            <h3 className="text-light font-semibold text-sm mb-2">
               Connect
             </h3>
-            <div className="flex gap-4 mb-6">
+            <div className="flex gap-4 mb-4">
               <a
                 href="https://github.com/yoelgntng18"
                 className="hover:text-purple-400 transition-colors"
@@ -91,12 +90,12 @@ const Footer = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="flex-1 px-3 py-2 text-sm bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-cyan-400 sm:w-full"
+                placeholder="your@email.com"
+                className="flex-1 px-3 py-2 text-sm bg-transparent border border-gray-600 rounded-full focus:outline-none focus:border-cyan-400 sm:w-full"
               />
               <button
                 type="submit"
-                className="px-4 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors whitespace-nowrap sm:w-full"
+                className="px-4 py-2 text-sm bg-dark text-white rounded-full hover:bg-red-500 transition-colors whitespace-nowrap sm:w-full"
               >
                 Subscribe
               </button>

@@ -8,6 +8,8 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
+import TopProgressBar from "@/components/TopProgressBar";
+
 // If loading a variable font, you don't need to specify the font weight
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-mont" });
 
@@ -23,6 +25,7 @@ export default function App({ Component, pageProps }) {
 
   return (
     <>
+      <TopProgressBar />
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
@@ -35,6 +38,13 @@ export default function App({ Component, pageProps }) {
       <AnimatePresence mode="wait">
         {loading && <Loading key="loading" />}
       </AnimatePresence>
+      {loading && (
+        <style jsx global>{`
+          html, body {
+            overflow: hidden !important;
+          }
+        `}</style>
+      )}
       <main
         className={`${montserrat.variable} font-mont w-full min-h-screen h-full ${
           isAboutPage ? '' : 'bg-black'

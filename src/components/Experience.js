@@ -18,7 +18,7 @@ const Details = ({ company, position, time, address, work, logo }) => {
         transition={{ duration: 0.5, type: "spring" }}
         className="w-full"
       >
-        <div className="bg-gradient-to-br from-dark/80 to-dark/40 border border-light/20 rounded-xl p-6 sm:p-4 backdrop-blur-sm hover:border-purple-500/50 transition-all duration-300 shadow-lg hover:shadow-purple-500/20">
+        <div className="bg-gradient-to-br from-dark/80 to-dark/40 border border-light/20 rounded-xl p-6 sm:p-4 backdrop-blur-sm hover:border-white/50 transition-all duration-300 shadow-lg hover:shadow-white/20">
           <div className="flex items-start gap-6 md:gap-4 sm:gap-3 sm:flex-col">
             {logo && (
               <div className="flex-shrink-0">
@@ -34,24 +34,23 @@ const Details = ({ company, position, time, address, work, logo }) => {
               </div>
             )}
             <div className="flex-1 min-w-0 sm:w-full">
-              <h3 className="font-bold text-xl sm:text-lg xs:text-base text-light mb-1">
-                {company}
-              </h3>
-              <p className="text-purple-400 font-semibold text-base sm:text-sm xs:text-xs mb-3">
-                {position}
-              </p>
-              <div className="flex flex-wrap gap-3 sm:gap-2 mb-4">
-                <span className="inline-flex items-center gap-1.5 text-light/60 text-sm xs:text-xs bg-light/5 px-3 py-1 sm:px-2 sm:py-0.5 rounded-full">
-                  <span>📅</span> {time}
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-light/60 text-sm xs:text-xs bg-light/5 px-3 py-1 sm:px-2 sm:py-0.5 rounded-full">
-                  <span>📍</span> {address}
+              <div className="flex items-center justify-between sm:flex-col sm:items-start sm:gap-1 mb-1">
+                <h3 className="font-bold text-xl sm:text-lg xs:text-base text-light">
+                  {company}
+                </h3>
+                <span className="text-light/60 text-sm xs:text-xs whitespace-nowrap">
+                  {time}
                 </span>
               </div>
+              <p className="text-gray-400 font-semibold text-base sm:text-sm xs:text-xs mb-3">
+                {position}
+              </p>
               {work && (
-                <p className="text-sm md:text-xs sm:text-xs text-light/70 leading-relaxed">
-                  {work}
-                </p>
+                <div className="p-4 sm:p-3 mt-4 rounded-lg bg-light/5 border border-light/10">
+                  <p className="text-sm md:text-xs sm:text-xs text-light/80 leading-relaxed">
+                    {work}
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -87,31 +86,27 @@ const Experience = () => {
             company="Maritim Muda Nusantara"
             position="Web Developer"
             time="Des 2025 – Now 2026"
-            address="Jakarta, East Java"
             work="Developing and maintaining websites"
-            logo="/images/logo-maritim.jpg"
+            logo="/images/logo-maritim.png"
           />
           <Details
             company="SDA Media"
             position="Fullstack Developer"
             time="2024 - 2024"
-            address="Bandung, East Java"
             work="Developing and maintaining websites using Laravel and MySQL. Collaborating in project planning, code reviews, and sprint planning. Active in technical requirements meetings and using GitLab for version control. Contributing to application testing with focus on bug identification and performance improvements."
-            logo="/images/logo-sda.jpg"
+            logo="/images/logo-sda.png"
           />
           <Details
             company="Bangkit Academy"
             position="Cloud Engineer Cohort"
             time="Feb 2024 – July 2024"
-            address="Indonesia"
             work="Led by Google, Tokopedia, Gojek, & Traveloka. Intensive program focused on cloud computing technologies and best practices."
-            logo="/images/logo-bangkit.jpg"
+            logo="/images/logo-bangkit.png"
           />
           <Details
             company="Universitas Advent Indonesia"
             position="Dormitory Monitor"
             time="2021 - 2023"
-            address="Bandung, East Java"
             work="Monitored and maintained orderliness of students living in the men's dormitory, ensuring a conducive living environment."
             logo="/images/logo-unai.png"
           />

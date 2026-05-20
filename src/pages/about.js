@@ -24,11 +24,16 @@ const FloatingImages = ({ isHovered }) => {
 
   useEffect(() => {
     if (isHovered) {
+      const isMobile = window.innerWidth < 768;
+      const spreadX = isMobile ? 120 : 300;
+      const spreadY = isMobile ? 80 : 120;
+      const randomness = isMobile ? 30 : 70;
+
       const newPositions = images.map((img, idx) => {
-        const baseX = img.side === "left" ? -350 : 300;
-        const baseY = (img.index - 1) * 120;
-        const randomX = baseX + (Math.random() - 0.5) * 70;
-        const randomY = baseY + (Math.random() - 0.5) * 70;
+        const baseX = img.side === "left" ? -(spreadX + (isMobile ? 20 : 50)) : spreadX;
+        const baseY = (img.index - 1) * spreadY;
+        const randomX = baseX + (Math.random() - 0.5) * randomness;
+        const randomY = baseY + (Math.random() - 0.5) * randomness;
         const randomRotate = (Math.random() - 0.5) * 30;
         return { x: randomX, y: randomY, rotate: randomRotate };
       });
@@ -44,7 +49,7 @@ const FloatingImages = ({ isHovered }) => {
         return (
           <motion.div
             key={i}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 pointer-events-none z-0"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-12 md:h-12 pointer-events-none z-0"
             animate={{
               x: isHovered ? pos.x : 0,
               y: isHovered ? pos.y : 0,
