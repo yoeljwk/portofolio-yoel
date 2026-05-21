@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "eslint-config-next": "^14.2.7",
+    "firebase": "^12.13.0",
     "framer-motion": "^11.3.31",
     "gsap": "^3.14.2",
     "lottie-react": "^2.4.1",

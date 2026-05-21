@@ -29,11 +29,12 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'", // unsafe-inline diperlukan Next.js
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://*.firebaseapp.com https://*.firebase.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: blob: https://images.unsplash.com",
-      "connect-src 'self' https://api.openweathermap.org",
+      "img-src 'self' data: blob: https://images.unsplash.com https://api.dicebear.com https://*.googleusercontent.com https://*.githubusercontent.com",
+      "connect-src 'self' https://api.openweathermap.org https://*.googleapis.com https://*.firebaseio.com https://*.firestore.googleapis.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
+      "frame-src https://accounts.google.com https://*.firebaseapp.com",
       "frame-ancestors 'none'",
     ].join('; '),
   },
@@ -42,7 +43,7 @@ const securityHeaders = [
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.unsplash.com'],
+    domains: ['images.unsplash.com', 'api.dicebear.com', 'lh3.googleusercontent.com', 'avatars.githubusercontent.com'],
   },
   async headers() {
     return [

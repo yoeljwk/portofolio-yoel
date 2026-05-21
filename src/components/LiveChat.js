@@ -1,134 +1,170 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send } from "lucide-react";
+import { X, MessageSquare, ExternalLink, ThumbsUp, Heart } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+
+const AUTHOR_EMAIL = "yoeljwk7@gmail.com";
+const EMOJIS = ["👍", "❤️"];
+
+const EmojiIcon = ({ emoji }) => {
+  const icons = { "👍": ThumbsUp, "❤️": Heart };
+  const Icon = icons[emoji];
+  return Icon ? <Icon size={10} className="mr-0.5 inline flex-shrink-0" /> : null;
+};
+
+const formatDate = (timestamp) => {
+  if (!timestamp) return "…";
+  try {
+    const date = typeof timestamp.toDate === "function" ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" }) +
+      " · " + date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+  } catch { return "…"; }
+};
 
 export default function LiveChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messages, setMessages] = useState([{ text: "Halo! yuk tanyain tentang yoel👋", isUser: false }]);
-  const [isTyping, setIsTyping] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [mounted, setMounted] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  useEffect(() => {
+    setMounted(true);
+    const q = query(collection(db, "guestbook"), orderBy("createdAt", "asc"), limit(10));
+    const unsub = onSnapshot(q, (snapshot) => {
+      setMessages(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [messages, isTyping]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (message.trim()) {
-      setMessages([...messages, { text: message, isUser: true }]);
-      setMessage("");
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        setMessages(prev => [...prev, { text: "kepo banget sih", isUser: false }]);
-      }, 1500);
-    }
-  };
+    if (isOpen) setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+  }, [messages, isOpen]);
 
   return (
     <>
+      <style>{`
+        .livechat-scroll::-webkit-scrollbar { width: 4px; }
+        .livechat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .livechat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+        .livechat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+      `}</style>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 left-6 w-80 sm:w-72 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-40 overflow-hidden"
+            className="fixed bottom-24 left-6 w-80 sm:w-72 bg-dark border border-light/10 rounded-2xl shadow-2xl z-40 overflow-hidden"
           >
-            <div className="bg-gradient-to-r from-gray-700 to-gray-500 p-4 flex justify-between items-center">
-              <h3 className="text-white font-semibold">Kepo Chat</h3>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="text-white hover:bg-white/20 rounded-full p-1"
-              >
-                <X size={20} />
+            {/* Header */}
+            <div className="bg-dark px-4 py-3 flex justify-between items-center border-b border-light/10">
+              <div className="flex items-center gap-2">
+                <h3 className="text-light font-semibold text-sm">Guestbook</h3>
+                <span className="text-[10px] bg-dark-400/20 text-yellow-400 border border-yellow-400/30 px-1.5 py-0.5 rounded-full">{messages.length}</span>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="text-light/50 hover:text-light hover:bg-white/10 rounded-full p-1 transition-colors">
+                <X size={16} />
               </button>
             </div>
-            
-            <div className="h-64 p-4 overflow-y-auto bg-gray-50 dark:bg-gray-900 space-y-2">
-              {messages.map((msg, index) => (
-                <div key={index} className={`flex ${msg.isUser ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`rounded-lg p-3 shadow-sm max-w-[80%] ${
-                    msg.isUser 
-                      ? 'bg-gray-500 text-white' 
-                      : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                  }`}>
-                    <p className="text-sm">{msg.text}</p>
-                  </div>
-                </div>
-              ))}
-              {isTyping && (
-                <div className="flex justify-start">
-                  <div className="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
-                    <div className="flex gap-1">
-                      <motion.span
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: 0 }}
-                        className="w-2 h-2 bg-gray-500 rounded-full"
-                      />
-                      <motion.span
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
-                        className="w-2 h-2 bg-gray-500 rounded-full"
-                      />
-                      <motion.span
-                        animate={{ opacity: [0.4, 1, 0.4] }}
-                        transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
-                        className="w-2 h-2 bg-gray-500 rounded-full"
-                      />
+
+            {/* Messages preview */}
+            <div className="h-64 p-3 overflow-y-auto space-y-3 bg-black/40 livechat-scroll">
+              {messages.length === 0 ? (
+                <p className="text-center text-light/40 text-xs mt-8">Belum ada pesan.</p>
+              ) : (
+                messages.map(msg => {
+                  const isAuthor = msg.userEmail === AUTHOR_EMAIL;
+                  return (
+                    <div key={msg.id} className={`flex gap-2 items-start ${isAuthor ? "justify-end" : "justify-start"}`}>
+                      {!isAuthor && (
+                        <div className="relative w-6 h-6 rounded-full overflow-hidden border border-light/20 flex-shrink-0 mt-4">
+                          {mounted && <Image src={msg.userPhoto || "https://api.dicebear.com/7.x/adventurer/svg?seed=Anon"} alt={msg.userName} fill className="object-cover" unoptimized />}
+                        </div>
+                      )}
+                      <div className={`flex flex-col max-w-[78%] ${isAuthor ? "items-end" : "items-start"}`}>
+                        <div className={`flex items-center gap-1 mb-0.5 ${isAuthor ? "flex-row-reverse" : "flex-row"}`}>
+                          <span className="text-[10px] font-bold text-light/60 truncate max-w-[100px]">{msg.userName}</span>
+                          {isAuthor && <span className="text-[8px] px-1 py-0.5 rounded-full bg-yellow-400/20 border border-yellow-400/30 text-yellow-400">Author</span>}
+                          <span className="text-[9px] text-light/30">{formatDate(msg.createdAt)}</span>
+                        </div>
+
+                        {/* Bubble dengan quote replyTo */}
+                        <div className={`rounded-2xl text-xs leading-relaxed overflow-hidden ${
+                          isAuthor
+                            ? "bg-yellow-400/20 border border-yellow-400/30 text-light/90 rounded-tr-sm"
+                            : "bg-white/10 border border-light/10 text-light/80 rounded-tl-sm"
+                        }`}>
+                          {msg.replyTo && (
+                            <div className={`px-2.5 pt-2 pb-1 border-b ${isAuthor ? "border-yellow-400/20" : "border-light/10"}`}>
+                              <div className={`pl-2 border-l-2 ${isAuthor ? "border-yellow-400/60" : "border-light/40"}`}>
+                                <p className="text-[9px] font-bold text-light/50 mb-0.5">{msg.replyTo.userName}</p>
+                                <p className="text-[10px] text-light/35 truncate max-w-[160px]">{msg.replyTo.text}</p>
+                              </div>
+                            </div>
+                          )}
+                          <p className="px-3 py-2">{msg.text.length > 80 ? msg.text.slice(0, 80) + "…" : msg.text}</p>
+                        </div>
+
+                        {/* Reactions */}
+                        <div className={`flex gap-1 mt-1 flex-wrap ${isAuthor ? "justify-end" : "justify-start"}`}>
+                          {EMOJIS.map(emoji => {
+                            const count = (msg.reactions?.[emoji] || []).length;
+                            if (count === 0) return null;
+                            return (
+                              <span key={emoji} className="px-1.5 py-0.5 rounded-full border border-light/10 bg-dark/40 text-[9px] text-light/50 flex items-center">
+                                <EmojiIcon emoji={emoji} />{count}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {isAuthor && (
+                        <div className="relative w-6 h-6 rounded-full overflow-hidden border border-light/20 flex-shrink-0 mt-4">
+                          {mounted && <Image src={msg.userPhoto || "https://api.dicebear.com/7.x/adventurer/svg?seed=Anon"} alt={msg.userName} fill className="object-cover" unoptimized />}
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </div>
+                  );
+                })
               )}
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 border-t dark:border-gray-700">
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  placeholder="Ketik pertanyaan..."
-                  className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-dark dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                />
-                <button
-                  type="submit"
-                  className="bg-gray-800 hover:bg-gray-700 text-white p-3 rounded-lg"
+            {/* Footer */}
+            <div className="p-3 border-t border-light/10 bg-black/20">
+              <Link href="/guestbook">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full flex items-center justify-center gap-2 bg-yellow-400 text-dark font-bold py-2 rounded-xl text-sm transition-all hover:bg-yellow-300"
                 >
-                  <Send size={20} />
-                </button>
-              </div>
-            </form>
+                  Tinggalkan Pesan <ExternalLink size={14} />
+                </motion.button>
+              </Link>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Trigger button */}
       <div className="fixed bottom-6 left-6 z-40 flex items-center gap-3">
         <motion.button
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsOpen(!isOpen)}
-          className="rounded-full overflow-hidden"
+          className="rounded-full overflow-hidden shadow-lg"
         >
-          <Image
-            src="/images/profile/avayoel.png"
-            alt="Chat"
-            width={56}
-            height={56}
-            className="object-cover"
-          />
+          <Image src="/images/profile/avayoel.png" alt="Chat" width={56} height={56} className="object-cover" />
         </motion.button>
         <motion.span
           animate={{ scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="text-sm font-semibold text-dark dark:text-light py-1shadow-md"
+          className="text-sm font-semibold text-dark dark:text-light"
         >
           Click me!
         </motion.span>

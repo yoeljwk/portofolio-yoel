@@ -101,11 +101,12 @@ const Navbar = () => {
             <CustomLink className="mr-4" href="/" title="Home" />
             <CustomLink className="mx-4" href="/about" title="About" />
             <CustomLink className="mx-4" href="/projects" title="Projects" />
-            <CustomLink className="ml-4" href="/blog" title="Blog" />
+            <CustomLink className="mx-4" href="/blog" title="Blog" />
+            <CustomLink className="ml-4" href="/guestbook" title="Guestbook" />
           </nav>
           <motion.div
-            className="absolute left-14 top-1.5 -translate-y-1/2 ml-4 whitespace-nowrap font-bold text-4xl text-light pointer-events-none"
-            animate={{ x: [0, 0, 295, 295, 0] }}
+            className="absolute left-36 top-1.5 -translate-y-1/2 ml-4 whitespace-nowrap font-bold text-4xl text-light pointer-events-none"
+            animate={{ x: [0, 0, 330, 330, 0] }}
             transition={{
               duration: 14,
               times: [0, 0.25, 0.55, 0.7, 1],
@@ -149,6 +150,12 @@ const Navbar = () => {
               className="my-3"
               href="/blog"
               title="Blog"
+            />
+            <CustomMobileLink
+              toggle={handleClick}
+              className="my-3"
+              href="/guestbook"
+              title="Guestbook"
             />
           </nav>
         </motion.div>

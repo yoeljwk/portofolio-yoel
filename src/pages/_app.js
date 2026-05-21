@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 import TopProgressBar from "@/components/TopProgressBar";
+import LiveChat from "@/components/LiveChat";
 
 // If loading a variable font, you don't need to specify the font weight
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-mont" });
@@ -54,6 +55,7 @@ export default function App({ Component, pageProps }) {
         } : {}}
       >
         <Navbar />
+        <LiveChat />
         <AnimatePresence initial={false} mode="wait">
           <Component key={router.asPath} {...pageProps} />
         </AnimatePresence>
