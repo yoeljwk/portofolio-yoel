@@ -55,6 +55,7 @@ export default function App({ Component, pageProps }) {
         } : {}}
       >
         <Navbar />
+        <div className="h-20 lg:h-16" />
         <LiveChat />
         <AnimatePresence initial={false} mode="wait">
           <Component key={router.asPath} {...pageProps} />

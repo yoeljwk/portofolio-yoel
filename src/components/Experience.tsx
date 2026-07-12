@@ -94,7 +94,7 @@ const Experience = () => {
           <Details
             company="Maritim Muda Nusantara"
             position="Web Developer"
-            time="Des 2025 – Now 2026"
+            time="Des 2025 – Jun 2026"
             work="Developing and maintaining websites"
             logo="/images/logo-maritim.png"
           />

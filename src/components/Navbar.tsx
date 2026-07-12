@@ -1,8 +1,9 @@
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Logo from "./Logo";
 import { useRouter } from "next/router";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { Github, Linkedin, Instagram, Home, User, Folder, BookOpen, MessageSquare } from "lucide-react";
 
 const CustomLink = ({ href, title, className = "" }) => {
   const router = useRouter();
@@ -28,32 +29,50 @@ const CustomLink = ({ href, title, className = "" }) => {
   );
 };
 
-const CustomMobileLink = ({ href, title, className = "", toggle }) => {
+const mobileLinks = [
+  { href: "/", title: "Home", icon: Home },
+  { href: "/about", title: "About", icon: User },
+  { href: "/projects", title: "Projects", icon: Folder },
+  { href: "/blog", title: "Blog", icon: BookOpen },
+  { href: "/guestbook", title: "Guestbook", icon: MessageSquare },
+];
+
+const CustomMobileLink = ({ href, title, icon: Icon, toggle }) => {
   const router = useRouter();
+  const isActive = router.asPath === href;
 
   const handleClick = () => {
     toggle();
     router.push(href);
   };
 
+  const itemVariants = {
+    hidden: { opacity: 0, x: 10 },
+    visible: { opacity: 1, x: 0 },
+    exit: { opacity: 0, x: 10 },
+  };
+
   return (
-    <button
-      className={`${className}  rounded relative group text-light`}
+    <motion.button
+      variants={itemVariants}
+      whileTap={{ scale: 0.99 }}
       onClick={handleClick}
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-left transition-colors duration-200 group
+        ${
+          isActive
+            ? "text-light font-semibold"
+            : "text-light/65 hover:text-light"
+        }
+      `}
     >
-      {title}
-      <span
-        className={`
-              inline-block h-[1px]  bg-light absolute left-0 -bottom-0.5 
-              group-hover:w-full transition-[width] ease duration-300
-              ${
-                router.asPath === href ? "w-full" : " w-0"
-              }
-              `}
-      >
-        &nbsp;
+      <Icon size={16} className={`transition-colors duration-200 ${isActive ? "text-light" : "text-light/40 group-hover:text-light"}`} />
+      <span className="text-sm">
+        {title}
       </span>
-    </button>
+      {isActive && (
+        <span className="w-1.5 h-1.5 rounded-full bg-light ml-auto" />
+      )}
+    </motion.button>
   );
 };
 
@@ -66,13 +85,19 @@ const Navbar = () => {
 
   return (
     <header
-      className="w-full max-w-full overflow-x-hidden flex items-center justify-between px-32 pt-10 pb-8 font-medium text-light
-    lg:px-8 md:px-6 sm:px-4 lg:pt-8 relative z-10
-    "
+      className="w-full max-w-full flex items-center justify-between px-32 pt-6 pb-6 font-medium text-light
+    lg:px-8 md:px-6 sm:px-4 lg:pt-4 lg:pb-4 fixed top-0 left-0 right-0 z-40 bg-transparent"
     >
+      <Link
+        href="/"
+        className="font-bold text-xl hidden lg:block z-[60] relative text-light"
+      >
+        Yoel Ginting
+      </Link>
+
       <button
         type="button"
-        className="flex-col items-center justify-center hidden lg:flex z-[60] relative"
+        className="flex-col items-center justify-center hidden lg:flex z-[60] relative animate-none"
         aria-controls="mobile-menu"
         aria-expanded={isOpen}
         onClick={handleClick}
@@ -119,47 +144,61 @@ const Navbar = () => {
           </motion.div>
         </div>
       </div>
-      {isOpen ? (
-        <motion.div
-          className="w-[40vw] sm:w-[65vw] flex justify-center items-center flex-col fixed top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 py-16 bg-dark/95 rounded-lg z-[55] backdrop-blur-md border border-light/20
-      "
-          initial={{ scale: 0, x: "-50%", y: "-50%", opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-        >
-          <nav className="flex items-center justify-center flex-col text-xl">
-            <CustomMobileLink
-              toggle={handleClick}
-              className="my-3"
-              href="/"
-              title="Home"
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={handleClick}
+              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
             />
-            <CustomMobileLink
-              toggle={handleClick}
-              className="my-3"
-              href="/about"
-              title="About"
-            />
-            <CustomMobileLink
-              toggle={handleClick}
-              className="my-3"
-              href="/projects"
-              title="Projects"
-            />
-            <CustomMobileLink
-              toggle={handleClick}
-              className="my-3"
-              href="/blog"
-              title="Blog"
-            />
-            <CustomMobileLink
-              toggle={handleClick}
-              className="my-3"
-              href="/guestbook"
-              title="Guestbook"
-            />
-          </nav>
-        </motion.div>
-      ) : null}
+
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              style={{ transformOrigin: "top right" }}
+              variants={{
+                hidden: { opacity: 0, scale: 0.95, y: -10 },
+                visible: {
+                  opacity: 1,
+                  scale: 1,
+                  y: 0,
+                  transition: {
+                    type: "spring",
+                    duration: 0.3,
+                    staggerChildren: 0.05,
+                    delayChildren: 0.05,
+                  },
+                },
+                exit: {
+                  opacity: 0,
+                  scale: 0.95,
+                  y: -10,
+                  transition: {
+                    duration: 0.2,
+                  },
+                },
+              }}
+              className="absolute top-[calc(100%-12px)] right-8 md:right-6 sm:right-4 z-50 w-[85vw] max-w-[190px] bg-dark/95 border border-light/10 rounded-sm shadow-2xl p-1.5 backdrop-blur-md"
+            >
+              <div className="flex flex-col gap-1">
+                {mobileLinks.map((link) => (
+                  <CustomMobileLink
+                    key={link.href}
+                    toggle={handleClick}
+                    href={link.href}
+                    title={link.title}
+                    icon={link.icon}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       <div className="absolute left-[50%] top-2 translate-x-[-50%] lg:hidden">
         <Logo />

@@ -12,7 +12,7 @@ import TypingCode from "@/components/TypingCode";
 
 const FloatingImages = ({ isHovered }) => {
   const [positions, setPositions] = useState([]);
-  
+
   const images = [
     { src: "/images/shape/shapehtml.png", side: "left", index: 0 },
     { src: "/images/shape/shapecss.png", side: "left", index: 1 },
@@ -45,7 +45,7 @@ const FloatingImages = ({ isHovered }) => {
     <>
       {images.map((img, i) => {
         const pos = positions[i] || { x: 0, y: 0, rotate: 0 };
-        
+
         return (
           <motion.div
             key={i}
@@ -143,21 +143,19 @@ export default function About() {
                 <div className="flex gap-3 mb-6 md:gap-2">
                   <button
                     onClick={() => setActiveView("vscode")}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all md:px-3 md:py-1.5 md:text-sm ${
-                      activeView === "vscode"
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all md:px-3 md:py-1.5 md:text-sm ${activeView === "vscode"
                         ? "bg-[#007acc] text-white"
                         : "bg-dark border-2 border-light/20 text-light hover:border-[#007acc]"
-                    }`}
+                      }`}
                   >
                     VS Code
                   </button>
                   <button
                     onClick={() => setActiveView("run")}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-all md:px-3 md:py-1.5 md:text-sm ${
-                      activeView === "run"
+                    className={`px-4 py-2 rounded-lg font-semibold transition-all md:px-3 md:py-1.5 md:text-sm ${activeView === "run"
                         ? "bg-[#16a34a] text-white"
                         : "bg-dark border-2 border-light/20 text-light hover:border-[#16a34a]"
-                    }`}
+                      }`}
                   >
                     Run
                   </button>
