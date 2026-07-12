@@ -68,7 +68,7 @@ export default function Blog() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", ...new Set(blogPosts.map(post => post.category))];
+  const categories = ["All", ...Array.from(new Set(blogPosts.map(post => post.category)))];
 
   const filteredPosts = useMemo(() => {
     return blogPosts.filter(post => {

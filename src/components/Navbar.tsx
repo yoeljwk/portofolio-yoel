@@ -102,11 +102,11 @@ const Navbar = () => {
             <CustomLink className="mx-4" href="/about" title="About" />
             <CustomLink className="mx-4" href="/projects" title="Projects" />
             <CustomLink className="mx-4" href="/blog" title="Blog" />
-            <CustomLink className="ml-4" href="/guestbook" title="Guestbook" />
+            <CustomLink className="mx-4" href="/guestbook" title="Guestbook" />
           </nav>
           <motion.div
             className="absolute left-36 top-1.5 -translate-y-1/2 ml-4 whitespace-nowrap font-bold text-4xl text-light pointer-events-none"
-            animate={{ x: [0, 0, 330, 330, 0] }}
+            animate={{ x: [0, 0, 360, 360, 0] }}
             transition={{
               duration: 14,
               times: [0, 0.25, 0.55, 0.7, 1],

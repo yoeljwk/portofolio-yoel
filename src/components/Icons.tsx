@@ -14,7 +14,7 @@ export const GithubIcon = ({ className, ...rest }) => (
         height="28.80"
         rx="14.4"
         fill="#f5f5f5"
-        strokewidth="0"
+        strokeWidth={0}
       ></rect>
     </g>
     <g
@@ -65,7 +65,7 @@ export const LinkedInIcon = ({ className, ...rest }) => (
         height="28.80"
         rx="14.4"
         fill="#f5f5f5"
-        strokewidth="0"
+        strokeWidth={0}
       ></rect>
     </g>
     <g
@@ -498,7 +498,7 @@ export const LinkArrow = ({ className, ...rest }) => (
         height="24.00"
         rx="12"
         fill="#f5f5f5"
-        strokewidth="0"
+        strokeWidth={0}
       ></rect>
     </g>
     <g
@@ -531,7 +531,7 @@ export const MediumIcon = ({ className, ...rest }) => (
         height="28.80"
         rx="14.4"
         fill="#f5f5f5"
-        strokewidth="0"
+        strokeWidth={0}
       ></rect>
     </g>
     <g
@@ -565,7 +565,7 @@ export const DevIcon = ({ className, ...rest }) => (
         height="28.80"
         rx="14.4"
         fill="#f5f5f5"
-        strokewidth="0"
+        strokeWidth={0}
       ></rect>
     </g>
     <g

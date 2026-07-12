@@ -14,19 +14,29 @@ import { motion, useMotionValue } from "framer-motion";
 
 const FramerImage = motion(Image);
 
-const MovingImg = ({ title, img, link }) => {
+interface MovingImgProps {
+  title: string;
+  img: any;
+  link: string;
+}
+
+const MovingImg = ({ title, img, link }: MovingImgProps) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const imgRef = useRef(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
-  function handleMouse(event) {
-    imgRef.current.style.display = "inline-block";
+  function handleMouse(event: React.MouseEvent) {
+    if (imgRef.current) {
+      imgRef.current.style.display = "inline-block";
+    }
     x.set(event.pageX);
     y.set(-10);
   }
 
-  function handleMouseLeave(event) {
-    imgRef.current.style.display = "none";
+  function handleMouseLeave(event: React.MouseEvent) {
+    if (imgRef.current) {
+      imgRef.current.style.display = "none";
+    }
     x.set(0);
     y.set(0);
   }
@@ -50,8 +60,8 @@ const MovingImg = ({ title, img, link }) => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1, transition: { duration: 0.2 } }}
           style={{
-            x: x,
-            y: y,
+            x: x as any,
+            y: y as any,
           }}
           sizes="(max-width: 768px) 60vw,
               (max-width: 1200px) 40vw,
@@ -62,7 +72,14 @@ const MovingImg = ({ title, img, link }) => {
   );
 };
 
-const Article = ({ img, title, date, link }) => {
+interface ArticleProps {
+  title: string;
+  img?: any;
+  date?: string;
+  link?: string;
+}
+
+const Article = ({ img, title, date, link }: ArticleProps) => {
   return (
     <motion.li
       initial={{ y: 50, opacity: 0 }}

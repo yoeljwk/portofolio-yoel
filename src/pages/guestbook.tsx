@@ -45,18 +45,24 @@ export default function Guestbook() {
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const isFirstLoad = useRef(true);
+  const prevCountRef = useRef(0);
 
   useEffect(() => {
     setMounted(true);
     const unsubAuth = onAuthStateChanged(auth, (user) => setCurrentUser(user));
     const q = query(collection(db, "guestbook"), orderBy("createdAt", "asc"));
     const unsubMsgs = onSnapshot(q, (snapshot) => {
+      const newCount = snapshot.docs.length;
       setMessages(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
       if (isFirstLoad.current) {
         isFirstLoad.current = false;
+        prevCountRef.current = newCount;
         return;
       }
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+      if (newCount > prevCountRef.current) {
+        setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+      }
+      prevCountRef.current = newCount;
     });
     return () => { unsubAuth(); unsubMsgs(); };
   }, []);

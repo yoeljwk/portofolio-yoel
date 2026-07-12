@@ -4,7 +4,16 @@ import LiIcon from "./LiIcon";
 import Link from "next/link";
 import Image from "next/image";
 
-const Details = ({ company, position, time, address, work, logo }) => {
+interface DetailsProps {
+  company: string;
+  position: string;
+  time: string;
+  address?: string;
+  work?: string;
+  logo?: string;
+}
+
+const Details = ({ company, position, time, address, work, logo }: DetailsProps) => {
   const ref = useRef(null);
   return (
     <li
