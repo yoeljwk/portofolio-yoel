@@ -9,6 +9,9 @@ import { useRef } from "react";
 import proj1 from "../../public/images/projects/jaringan-doa.png";
 import proj2 from "../../public/images/projects/clone-rinso.png";
 import proj3 from "../../public/images/projects/dicepatin.png";
+import proj4 from "../../public/images/projects/wwgi.png";
+import proj5 from "../../public/images/projects/MaritimX.png";
+import proj6 from "../../public/images/projects/turbines.png";
 
 import { motion, useMotionValue } from "framer-motion";
 
@@ -146,11 +149,35 @@ export default function Projects() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-3 gap-6 md:grid-cols-2 sm:grid-cols-1 sm:gap-4">
               <FeaturedProject
+                type="Development"
+                tools="CI"
+                title="Word Wide Global Indonesia"
+                summary="Website PT. World Wide Global Indonesia"
+                img={proj4}
+                link="https://www.wwgimpor.id/"
+              />
+              <FeaturedProject
+                type="Development"
+                tools="React.js"
+                title="Maritim X Academy"
+                summary="Website untuk platform pendidikan oleh maritim muda nusantara"
+                img={proj5}
+                link="https://maritimx.id/"
+              />
+              <FeaturedProject
+                type="Design & Development"
+                tools="Next.js"
+                title="Turbines"
+                summary="Website HRIS untuk maritim muda nusantara"
+                img={proj6}
+                link="https://turbines.maritimepreneur.com/login"
+              />
+              <FeaturedProject
                 type="Design & Development"
                 tools="Vue.js | Laravel"
-                title="Jaringan Doa"
-                summary="Platform jaringan doa untuk saling mendoakan"
-                img={proj1}
+                title="DICEPATIN"
+                summary="Aplikasi cek pengiriman barang"
+                img={proj3}
                 link=""
               />
               <FeaturedProject
@@ -164,9 +191,9 @@ export default function Projects() {
               <FeaturedProject
                 type="Design & Development"
                 tools="Vue.js | Laravel"
-                title="DICEPATIN"
-                summary="Aplikasi cek paten Indonesia"
-                img={proj3}
+                title="Jaringan Doa"
+                summary="Platform jaringan doa untuk saling mendoakan"
+                img={proj1}
                 link=""
               />
             </div>
