@@ -3,7 +3,12 @@ import React, { useState, useEffect } from "react";
 import Logo from "./Logo";
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, Linkedin, Instagram, Home, User, Folder, BookOpen, MessageSquare } from "lucide-react";
+import { Github, Linkedin, Instagram, Home, User, Folder, BookOpen, MessageSquare, Terminal } from "lucide-react";
+
+interface NavbarProps {
+  navMode?: "sidebar" | "navbar";
+  setNavMode?: (mode: "sidebar" | "navbar") => void;
+}
 
 const CustomLink = ({ href, title, className = "" }) => {
   const router = useRouter();
@@ -76,7 +81,7 @@ const CustomMobileLink = ({ href, title, icon: Icon, toggle }) => {
   );
 };
 
-const Navbar = () => {
+const Navbar = ({ navMode, setNavMode }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleClick = () => {
@@ -128,10 +133,19 @@ const Navbar = () => {
             <CustomLink className="mx-4" href="/projects" title="Projects" />
             <CustomLink className="mx-4" href="/blog" title="Blog" />
             <CustomLink className="mx-4" href="/guestbook" title="Guestbook" />
+            {setNavMode && (
+              <button 
+                onClick={() => setNavMode("sidebar")}
+                title="Switch to IDE Mode"
+                className="ml-4 text-light/60 hover:text-[#ba8fff] hover:scale-110 transition-all duration-200 cursor-pointer flex items-center justify-center p-1 rounded-lg"
+              >
+                <Terminal size={18} />
+              </button>
+            )}
           </nav>
           <motion.div
             className="absolute left-36 top-1.5 -translate-y-1/2 ml-4 whitespace-nowrap font-bold text-4xl text-light pointer-events-none"
-            animate={{ x: [0, 0, 360, 360, 0] }}
+            animate={{ x: [0, 0, 390, 390, 0] }}
             transition={{
               duration: 14,
               times: [0, 0.25, 0.55, 0.7, 1],
@@ -194,6 +208,24 @@ const Navbar = () => {
                     icon={link.icon}
                   />
                 ))}
+                {setNavMode && (
+                  <motion.button
+                    variants={{
+                      hidden: { opacity: 0, x: 10 },
+                      visible: { opacity: 1, x: 0 },
+                      exit: { opacity: 0, x: 10 },
+                    }}
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => {
+                      handleClick();
+                      setNavMode("sidebar");
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-left text-light/65 hover:text-light transition-colors duration-200 group"
+                  >
+                    <Terminal size={16} className="text-light/40 group-hover:text-light" />
+                    <span className="text-sm">IDE Mode</span>
+                  </motion.button>
+                )}
               </div>
             </motion.div>
           </>
