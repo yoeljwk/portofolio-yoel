@@ -6,8 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import HeroLottie from "@/components/HeroLottie";
 import LiveChat from "@/components/LiveChat";
-import Blog from "@/components/Blog";
+import LatestPosts from "@/components/LatestPosts";
 import { Mail, Download } from "lucide-react";
+import FloatingBackground from "@/components/FloatingBackground";
 
 
 
@@ -22,28 +23,41 @@ export default function Home() {
         />
       </Head>
 
+      <FloatingBackground />
+
       <article
-        className={`flex min-h-screen items-center text-light sm:items-start`}
+        className={`flex min-h-screen items-center text-light sm:items-start relative z-10`}
       >
-        <Layout className="!pt-24 md:!pt-16 sm:!pt-4">
-          <div className="flex w-full items-start justify-between md:flex-col pt-10 pb-28 md:pt-0">
-            <div className="w-1/2 md:w-full flex justify-center items-center">
+        <Layout className="!bg-transparent !pt-24 md:!pt-16 sm:!pt-4">
+          <div className="flex w-full items-start justify-between md:flex-col pt-24 pb-28 md:pt-0">
+            <div className="w-1/2 md:w-full flex justify-center items-center sm:-mb-10">
               <HeroLottie />
             </div>
-            <div className="flex w-1/2 flex-col items-left self-center lg:w-full lg:text-center md:mt-0">
-              <h2 className="font-semibold capitalize mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light">
-                When the{" "}
-                <span className="animate-text bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 bg-clip-text text-transparent">
-                  code
-                </span>{" "}
-                works,
-              </h2>
-              <h2 className="font-semibold capitalize mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light">
-                <span className="animate-text bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                  dreams
-                </span>{" "}
-                move forward.
-              </h2>
+            <div className="flex w-1/2 flex-col items-left self-center lg:w-full lg:text-center md:mt-0 sm:-mt-10">
+              <div className="relative inline-block">
+                <h2 className="font-semibold capitalize mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light">
+                  When the{" "}
+                  <span className="animate-text bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 bg-clip-text text-transparent">
+                    code
+                  </span>{" "}
+                  works,
+                </h2>
+                <h2 className="font-semibold capitalize mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light">
+                  <span className="animate-text bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+                    dreams
+                  </span>{" "}
+                  move forward.
+                </h2>
+
+                <div className="absolute block md:hidden -bottom-24 left-[66%] w-72 h-44 pointer-events-none select-none">
+                  <Image
+                    src="/images/arrow_yoel2026.svg"
+                    alt="Arrow pointing up"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
+              </div>
               <div className="mt-2 flex items-center self-start gap-3 grid-cols-2 lg:self-center">
                 <a
                   href="/CV_Yoel_Ginting.pdf"
@@ -65,7 +79,7 @@ export default function Home() {
           </div>
         </Layout>
       </article>
-      <Blog />
+      <LatestPosts />
       <LiveChat />
     </>
   );

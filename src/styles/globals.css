@@ -24,7 +24,7 @@ input[type="text"], input[type="email"], input[type="password"], input[type="num
 }
 
 /* Projects and Articles image background black*/
-img.h-auto.w-full {background: black !important;}
+img.h-auto.w-full:not(.profile-img) {background: black !important;}
 img.w-full.max-h-80.object-cover {background: black !important;}
 
 /* Profile image shadow*/
@@ -40,7 +40,7 @@ div#__next { max-width: 1900px; margin-right: auto; margin-left: auto;}
 textarea:focus, input:focus {outline: none;}
 
 /* Projects and Articles image border black*/
-img.h-auto.w-full {border: 2px solid black; border-radius: 10px;}
+img.h-auto.w-full:not(.profile-img) {border: 2px solid black; border-radius: 10px;}
 
 /* Syntax Highlighting for TypingCode Component */
 .code-syntax .token-tag { color: #569cd6 !important; }

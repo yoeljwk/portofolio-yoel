@@ -3,7 +3,7 @@ import Head from "next/head";
 import Image from "next/image";
 import profab from "../../public/images/profile/profilecard.png";
 import bgImage from "../../public/images/background.jpg";
-import { useInView, useMotionValue, useSpring, motion, AnimatePresence } from "framer-motion";
+import { useInView, useMotionValue, useSpring, motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import Skills from "@/components/Skills";
 import Experience from "@/components/Experience";
@@ -108,6 +108,9 @@ export default function About() {
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 800], [1, 0]);
+
   const handleMouseMove = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
     setMousePosition({
@@ -139,7 +142,7 @@ export default function About() {
                 className="col-span-3 flex flex-col items-start justify-start xl:col-span-4 md:order-2 
               md:col-span-8 min-h-[630px] md:min-h-0"
               >
-                {/* Toggle Buttons */}
+         
                 <div className="flex gap-3 mb-6 md:gap-2">
                   <button
                     onClick={() => setActiveView("vscode")}
@@ -161,47 +164,49 @@ export default function About() {
                   </button>
                 </div>
 
-                <AnimatePresence mode="wait">
-                  {activeView === "vscode" ? (
-                    <motion.div
-                      key="typing"
-                      initial={{ opacity: 0, filter: "blur(10px)" }}
-                      animate={{ opacity: 1, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, filter: "blur(10px)" }}
-                      transition={{ duration: 0.5 }}
-                      className="w-full"
-                    >
-                      <TypingCode />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="biography"
-                      initial={{ opacity: 0, filter: "blur(10px)" }}
-                      animate={{ opacity: 1, filter: "blur(0px)" }}
-                      exit={{ opacity: 0, filter: "blur(10px)" }}
-                      transition={{ duration: 0.5 }}
-                      className="w-full"
-                    >
-                      <h2 className="mb-4 text-lg font-bold uppercase text-light/75">
-                        BIOGRAPHY
-                      </h2>
-                      <p className="font-medium ">
-                        Web Developer who is experienced in building responsive
-                        and engaging web applications. Skilled in implementing
-                        UI/UX designs into clean and efficient code, and
-                        actively collaborating across teams to create digital
-                        solutions that enhance the user experience. Enthusiastic
-                        about technology, always up to date with the latest
-                        developments, and known for creativity and thoroughness
-                        in solving problems. Ready to make a real contribution
-                        in every project that is carried out.
-                      </p>
-                      <p className="my-4 font-medium">
-                        P.s I like playing music and sports✌️.
-                      </p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <motion.div style={{ opacity }} className="w-full">
+                  <AnimatePresence mode="wait">
+                    {activeView === "vscode" ? (
+                      <motion.div
+                        key="typing"
+                        initial={{ opacity: 0, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, filter: "blur(10px)" }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full"
+                      >
+                        <TypingCode />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key="biography"
+                        initial={{ opacity: 0, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, filter: "blur(0px)" }}
+                        exit={{ opacity: 0, filter: "blur(10px)" }}
+                        transition={{ duration: 0.5 }}
+                        className="w-full"
+                      >
+                        <h2 className="mb-4 text-lg font-bold uppercase text-light/75">
+                          BIOGRAPHY
+                        </h2>
+                        <p className="font-medium ">
+                          Web Developer who is experienced in building responsive
+                          and engaging web applications. Skilled in implementing
+                          UI/UX designs into clean and efficient code, and
+                          actively collaborating across teams to create digital
+                          solutions that enhance the user experience. Enthusiastic
+                          about technology, always up to date with the latest
+                          developments, and known for creativity and thoroughness
+                          in solving problems. Ready to make a real contribution
+                          in every project that is carried out.
+                        </p>
+                        <p className="my-4 font-medium">
+                          P.s I like playing music and sports✌️.
+                        </p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
               </div>
               <div
                 className="relative col-span-3 h-max w-full flex items-start justify-end
@@ -241,6 +246,7 @@ export default function About() {
                     </motion.div>
                   )}
                   <motion.div
+                    style={{ opacity }}
                     animate={{ y: [0, -20, 0] }}
                     transition={{
                       duration: 3,
@@ -249,7 +255,7 @@ export default function About() {
                     }}
                   >
                     <Image
-                      className="h-auto w-full relative z-20"
+                      className="h-auto w-full relative z-20 profile-img"
                       priority={true}
                       src={profab}
                       alt="Yoel Ginting"
