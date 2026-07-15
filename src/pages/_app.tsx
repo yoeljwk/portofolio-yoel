@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import TopProgressBar from "@/components/TopProgressBar";
 import LiveChat from "@/components/LiveChat";
 import Sidebar from "@/components/Sidebar";
+import LocationTimeWidget from "@/components/LocationTimeWidget";
 import { X } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faReact } from "@fortawesome/free-brands-svg-icons";
@@ -58,14 +59,14 @@ export default function App({ Component, pageProps }) {
   useEffect(() => {
     const savedMode = localStorage.getItem("portfolio-nav-mode");
     if (savedMode === "sidebar" || savedMode === "navbar") {
-      // On mobile, always force navbar regardless of saved preference
+   
       if (window.innerWidth < 1024) {
         setNavMode("navbar");
       } else {
         setNavMode(savedMode);
       }
     } else {
-      // No saved preference — default to navbar on mobile
+     
       if (window.innerWidth < 1024) {
         setNavMode("navbar");
       }
@@ -175,6 +176,11 @@ export default function App({ Component, pageProps }) {
         {navMode === "navbar" && <div className="h-20 lg:h-16" />}
         <LiveChat />
         
+        {/* Location & Time Widget */}
+        <div className="fixed top-6 right-6 lg:top-4 lg:left-4 lg:right-auto z-[60] pointer-events-auto">
+          <LocationTimeWidget />
+        </div>
+        
         <div className="flex w-full relative">
           {navMode === "sidebar" && (
             <Sidebar 
@@ -247,7 +253,6 @@ export default function App({ Component, pageProps }) {
                     );
                   })}
                 </div>
-                {/* Spacer to push content below fixed tab bar */}
                 <div className="h-9 shrink-0" />
               </>
             )}
@@ -256,7 +261,7 @@ export default function App({ Component, pageProps }) {
                 <Component key={router.asPath} {...pageProps} isAppLoading={loading} />
               </AnimatePresence>
             </div>
-            <Footer />
+            <Footer navMode={navMode} isSidebarOpen={isSidebarOpen} />
           </div>
         </div>
       </main>

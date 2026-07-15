@@ -51,7 +51,7 @@ const SplitHeadline = ({ isAppLoading = false }: { isAppLoading?: boolean }) => 
       opacity: 1,
       transition: {
         duration: 0.7,
-        ease: [0.16, 1, 0.3, 1], 
+        ease: [0.16, 1, 0.3, 1],
         delay: index * 0.03,
       }
     })
@@ -131,14 +131,14 @@ export default function Home({ isAppLoading = false }: { isAppLoading?: boolean 
       >
         <Layout className="!bg-transparent !pt-24 md:!pt-16 sm:!pt-4">
           <div className="flex w-full items-start justify-between md:flex-col pt-24 pb-28 md:pt-0">
-            <div className="w-1/2 md:w-full flex justify-center items-center sm:-mb-10">
+            <div className="w-1/2 md:w-full flex justify-center items-center">
               <HeroLottie />
             </div>
-            <div className="flex w-1/2 flex-col items-left self-center lg:w-full lg:text-center md:mt-0 sm:-mt-10">
+            <div className="flex w-1/2 flex-col items-left self-center lg:w-full lg:text-center md:mt-4">
               <div className="relative inline-block">
                 <SplitHeadline isAppLoading={isAppLoading} />
 
-                <div className="absolute block md:hidden -bottom-24 left-[66%] w-72 h-44 pointer-events-none select-none">
+                <div className="absolute block md:hidden -bottom-24 left-[58%] w-72 h-44 pointer-events-none select-none">
                   <Image
                     src="/images/arrow_yoel2026.svg"
                     alt="Arrow pointing up"

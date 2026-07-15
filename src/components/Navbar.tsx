@@ -1,9 +1,10 @@
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Logo from "./Logo";
+import gsap from "gsap";  
 import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
-import { Github, Linkedin, Instagram, Home, User, Folder, BookOpen, MessageSquare, Terminal } from "lucide-react";
+import { Github, Linkedin, Instagram, Home, User, Folder, BookOpen, MessageSquare, Terminal, ChevronDown } from "lucide-react";
 
 interface NavbarProps {
   navMode?: "sidebar" | "navbar";
@@ -51,22 +52,15 @@ const CustomMobileLink = ({ href, title, icon: Icon, toggle }) => {
     router.push(href);
   };
 
-  const itemVariants = {
-    hidden: { opacity: 0, x: 10 },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: 10 },
-  };
-
   return (
     <motion.button
-      variants={itemVariants}
       whileTap={{ scale: 0.99 }}
       onClick={handleClick}
-      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-left transition-colors duration-200 group
+      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-colors duration-200 group dropdown-item
         ${
           isActive
-            ? "text-light font-semibold"
-            : "text-light/65 hover:text-light"
+            ? "bg-white/10 text-light font-semibold"
+            : "text-light/65 hover:text-light hover:bg-white/5"
         }
       `}
     >
@@ -75,7 +69,7 @@ const CustomMobileLink = ({ href, title, icon: Icon, toggle }) => {
         {title}
       </span>
       {isActive && (
-        <span className="w-1.5 h-1.5 rounded-full bg-light ml-auto" />
+        <span className="w-1.5 h-1.5 rounded-full bg-[#ba8fff] ml-auto shadow-[0_0_8px_#ba8fff]" />
       )}
     </motion.button>
   );
@@ -83,10 +77,74 @@ const CustomMobileLink = ({ href, title, icon: Icon, toggle }) => {
 
 const Navbar = ({ navMode, setNavMode }: NavbarProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const backdropRef = useRef<HTMLDivElement>(null);
+  const arrowRef = useRef<HTMLSpanElement>(null);
 
   const handleClick = () => {
     setIsOpen(!isOpen);
   };
+
+  useEffect(() => {
+    if (!menuRef.current || !backdropRef.current) return;
+
+    const items = menuRef.current.querySelectorAll(".dropdown-item");
+
+    if (isOpen) {
+      // Open animation
+      gsap.killTweensOf([menuRef.current, backdropRef.current, arrowRef.current, items]);
+      
+      gsap.timeline()
+        .to(backdropRef.current, {
+          autoAlpha: 1,
+          duration: 0.3,
+          ease: "power2.out"
+        }, 0)
+        .to(arrowRef.current, {
+          rotation: 180,
+          duration: 0.9,
+          ease: "elastic.out(1.2, 0.3)"
+        }, 0)
+        .fromTo(menuRef.current, 
+          { autoAlpha: 0, yPercent: -30, scale: 0.7 },
+          { autoAlpha: 1, yPercent: 0, scale: 1, duration: 1, ease: "elastic.out(1.2, 0.3)" },
+          0
+        )
+        .fromTo(items,
+          { opacity: 0, x: -20 },
+          { opacity: 1, x: 0, duration: 0.5, ease: "back.out(3)", stagger: 0.07 },
+          0.1
+        );
+    } else {
+      // Close animation
+      gsap.killTweensOf([menuRef.current, backdropRef.current, arrowRef.current, items]);
+
+      gsap.timeline()
+        .to(backdropRef.current, {
+          autoAlpha: 0,
+          duration: 0.3,
+          ease: "power2.inOut"
+        }, 0)
+        .to(arrowRef.current, {
+          rotation: 0,
+          duration: 0.4,
+          ease: "power2.inOut"
+        }, 0)
+        .to(menuRef.current, {
+          autoAlpha: 0,
+          yPercent: -20,
+          scale: 0.8,
+          duration: 0.4,
+          ease: "power3.in"
+        }, 0)
+        .to(items, {
+          opacity: 0,
+          x: -10,
+          duration: 0.3,
+          stagger: 0.03
+        }, 0);
+    }
+  }, [isOpen]);
 
   return (
     <header
@@ -95,34 +153,22 @@ const Navbar = ({ navMode, setNavMode }: NavbarProps) => {
     >
       <Link
         href="/"
-        className="font-bold text-xl hidden lg:block z-[60] relative text-light"
+        className="font-bold text-xl hidden z-[60] relative text-light"
       >
         Yoel Ginting
       </Link>
 
       <button
         type="button"
-        className="flex-col items-center justify-center hidden lg:flex z-[60] relative animate-none"
+        className="hidden lg:flex items-center gap-2 px-4 py-2 border border-light/25 rounded-lg text-light hover:bg-white/5 transition-colors duration-200 font-semibold text-sm ml-auto z-[60] relative animate-none"
         aria-controls="mobile-menu"
         aria-expanded={isOpen}
         onClick={handleClick}
       >
-        <span className="sr-only">Open main menu</span>
-        <span
-          className={`bg-light block h-0.5 w-6 rounded-sm transition-all duration-300 ease-out ${
-            isOpen ? "rotate-45 translate-y-1" : "-translate-y-0.5"
-          }`}
-        ></span>
-        <span
-          className={`bg-light block h-0.5 w-6 rounded-sm transition-all duration-300 ease-out ${
-            isOpen ? "opacity-0" : "opacity-100"
-          } my-0.5`}
-        ></span>
-        <span
-          className={`bg-light block h-0.5 w-6 rounded-sm transition-all duration-300 ease-out ${
-            isOpen ? "-rotate-45 -translate-y-1" : "translate-y-0.5"
-          }`}
-        ></span>
+        <span>Menu</span>
+        <span ref={arrowRef} className="inline-block">
+          <ChevronDown size={14} />
+        </span>
       </button>
 
       <div className="w-full flex justify-center items-center lg:hidden">
@@ -158,79 +204,31 @@ const Navbar = ({ navMode, setNavMode }: NavbarProps) => {
           </motion.div>
         </div>
       </div>
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleClick}
-              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
-            />
+      
+      <div
+        ref={backdropRef}
+        onClick={handleClick}
+        className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px]"
+        style={{ visibility: "hidden", opacity: 0 }}
+      />
 
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              style={{ transformOrigin: "top right" }}
-              variants={{
-                hidden: { opacity: 0, scale: 0.95, y: -10 },
-                visible: {
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  transition: {
-                    type: "spring",
-                    duration: 0.3,
-                    staggerChildren: 0.05,
-                    delayChildren: 0.05,
-                  },
-                },
-                exit: {
-                  opacity: 0,
-                  scale: 0.95,
-                  y: -10,
-                  transition: {
-                    duration: 0.2,
-                  },
-                },
-              }}
-              className="absolute top-[calc(100%-12px)] right-8 md:right-6 sm:right-4 z-50 w-[85vw] max-w-[190px] bg-dark/95 border border-light/10 rounded-sm shadow-2xl p-1.5 backdrop-blur-md"
-            >
-              <div className="flex flex-col gap-1">
-                {mobileLinks.map((link) => (
-                  <CustomMobileLink
-                    key={link.href}
-                    toggle={handleClick}
-                    href={link.href}
-                    title={link.title}
-                    icon={link.icon}
-                  />
-                ))}
-                {setNavMode && (
-                  <motion.button
-                    variants={{
-                      hidden: { opacity: 0, x: 10 },
-                      visible: { opacity: 1, x: 0 },
-                      exit: { opacity: 0, x: 10 },
-                    }}
-                    whileTap={{ scale: 0.99 }}
-                    onClick={() => {
-                      handleClick();
-                      setNavMode("sidebar");
-                    }}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-sm text-left text-light/65 hover:text-light transition-colors duration-200 group"
-                  >
-                    <Terminal size={16} className="text-light/40 group-hover:text-light" />
-                    <span className="text-sm">IDE Mode</span>
-                  </motion.button>
-                )}
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+      <div
+        ref={menuRef}
+        style={{ transformOrigin: "top right", visibility: "hidden", opacity: 0 }}
+        className="absolute top-[calc(100%-8px)] right-8 md:right-6 sm:right-4 z-50 w-[85vw] max-w-[190px] bg-dark border border-light/20 rounded-xl shadow-2xl p-2.5 backdrop-blur-md"
+      >
+        <div className="flex flex-col gap-1">
+          {mobileLinks.map((link) => (
+            <CustomMobileLink
+              key={link.href}
+              toggle={handleClick}
+              href={link.href}
+              title={link.title}
+              icon={link.icon}
+            />
+          ))}
+        </div>
+      </div>
 
       <div className="absolute left-[50%] top-2 translate-x-[-50%] lg:hidden">
         <Logo />
