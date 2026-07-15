@@ -91,12 +91,11 @@ export default function LiveChat() {
                           <span className="text-[9px] text-light/30">{formatDate(msg.createdAt)}</span>
                         </div>
 
-                 
-                        <div className={`rounded-2xl text-xs leading-relaxed overflow-hidden ${
-                          isAuthor
+
+                        <div className={`rounded-2xl text-xs leading-relaxed overflow-hidden ${isAuthor
                             ? "bg-white/15 border border-white/10 text-light/95 rounded-tr-sm"
                             : "bg-white/5 border border-white/5 text-light/80 rounded-tl-sm"
-                        }`}>
+                          }`}>
                           {msg.replyTo && (
                             <div className="px-2.5 pt-2 pb-1 border-b border-light/5">
                               <div className="pl-2 border-l-2 border-light/20">
@@ -108,7 +107,7 @@ export default function LiveChat() {
                           <p className="px-3 py-2">{msg.text.length > 80 ? msg.text.slice(0, 80) + "…" : msg.text}</p>
                         </div>
 
-              
+
                         <div className={`flex gap-1 mt-1 flex-wrap ${isAuthor ? "justify-end" : "justify-start"}`}>
                           {EMOJIS.map(emoji => {
                             const count = (msg.reactions?.[emoji] || []).length;
@@ -134,7 +133,7 @@ export default function LiveChat() {
               <div ref={messagesEndRef} />
             </div>
 
-   
+
             <div className="p-3 border-t border-light/10 bg-black/20">
               <Link href="/guestbook">
                 <motion.button

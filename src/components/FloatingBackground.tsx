@@ -64,7 +64,7 @@ export default function FloatingBackground() {
 
   useEffect(() => {
     const generatedParticles: Particle[] = [];
-    const count = 55; 
+    const count = 55;
 
     for (let i = 0; i < count; i++) {
       const isIcon = Math.random() > 0.55;
@@ -73,16 +73,16 @@ export default function FloatingBackground() {
       const particle: Particle = {
         id: i,
         type: isIcon ? "icon" : "text",
-        x: Math.random() * 100, 
-        y: Math.random() * 100, 
-        size: Math.floor(Math.random() * 16) + 12, 
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size: Math.floor(Math.random() * 16) + 12,
         color: colorObj.text,
         glowColor: colorObj.glow,
         opacity: Math.random() * 0.3 + 0.15,
-        driftX: (Math.random() - 0.5) * 120, 
-        driftY: (Math.random() - 0.5) * 120, 
-        duration: Math.random() * 15 + 15, 
-        delay: Math.random() * -30, 
+        driftX: (Math.random() - 0.5) * 120,
+        driftY: (Math.random() - 0.5) * 120,
+        duration: Math.random() * 15 + 15,
+        delay: Math.random() * -30,
         rotation: Math.random() * 360,
         rotationDirection: Math.random() > 0.5 ? 1 : -1,
       };
