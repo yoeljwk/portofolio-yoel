@@ -1,8 +1,9 @@
-import React, { useRef } from "react";
+import React, { useRef, useEffect } from "react";
 import { motion, useScroll, useMotionValue, useSpring, useTransform } from "framer-motion";
 import LiIcon from "./LiIcon";
 import Link from "next/link";
 import Image from "next/image";
+import gsap from "gsap";
 
 interface DetailsProps {
   company: string;
@@ -27,7 +28,10 @@ const Details = ({ company, position, time, address, work, logo }: DetailsProps)
         transition={{ duration: 0.5, type: "spring" }}
         className="w-full"
       >
-        <div className="bg-gradient-to-br from-dark/80 to-dark/40 border border-light/20 rounded-xl p-6 sm:p-4 backdrop-blur-sm hover:border-white/50 transition-all duration-300 shadow-lg hover:shadow-white/20">
+        <div 
+          className="bg-gradient-to-br from-dark/80 to-dark/40 border border-light/20 rounded-xl p-6 sm:p-4 backdrop-blur-sm hover:border-white/50 transition-all duration-300 shadow-lg hover:shadow-white/20"
+          style={{ filter: "url(#chromatic-distortion)" }}
+        >
           <div className="flex items-start gap-6 md:gap-4 sm:gap-3 sm:flex-col">
             {logo && (
               <div className="flex-shrink-0">
@@ -149,6 +153,62 @@ const Experience = () => {
     offset: ["start end", "center start"],
   });
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const { ScrollTrigger } = require("gsap/dist/ScrollTrigger");
+    gsap.registerPlugin(ScrollTrigger);
+
+    const clamp = gsap.utils.clamp(-2000, 2000);
+    const velocityProxy = { v: 0, s: 0 }; // v = signed, s = strength (0..1)
+
+    const trigger = ScrollTrigger.create({
+      start: 0,
+      end: () => document.documentElement.scrollHeight - window.innerHeight,
+      onUpdate(self: any) {
+        const raw = clamp(self.getVelocity());
+        const norm = raw / 1000; // ~ -2..2
+        const strength = Math.min(1.5, Math.abs(norm));
+
+        if (Math.abs(strength) > Math.abs(velocityProxy.s)) {
+          velocityProxy.v = norm;
+          velocityProxy.s = strength;
+          
+          gsap.to(velocityProxy, {
+            v: 0,
+            s: 0,
+            duration: 2, 
+            ease: "power2.out",
+            overwrite: true
+          });
+        }
+      }
+    });
+
+    const tick = () => {
+      const displacementEl = document.getElementById("displacement-map");
+      const redOffsetEl = document.getElementById("red-offset");
+      const blueOffsetEl = document.getElementById("blue-offset");
+
+      if (displacementEl) {
+        displacementEl.setAttribute("scale", (velocityProxy.s * 6).toString());
+      }
+      if (redOffsetEl) {
+        redOffsetEl.setAttribute("dx", (-velocityProxy.v * 2.5).toString());
+      }
+      if (blueOffsetEl) {
+        blueOffsetEl.setAttribute("dx", (velocityProxy.v * 2.5).toString());
+      }
+    };
+
+    gsap.ticker.add(tick);
+
+    return () => {
+      trigger.kill();
+      gsap.ticker.remove(tick);
+    };
+  }, []);
+
   return (
     <div className="my-2">
       <h2 className="font-bold text-4xl mb-16 w-full text-center md:text-6xl xs:text-4xl md:mb-8 sm:!text-2xl xs:!text-2xl">
@@ -193,6 +253,7 @@ const Experience = () => {
           />
         </ul>
       </div>
+
       <div className="mt-40 sm:mt-20 flex items-center justify-between gap-3">
         <MagneticLink
           href="/projects/"
@@ -204,6 +265,24 @@ const Experience = () => {
           View Project
         </MagneticLink>
       </div>
+
+
+      <svg style={{ position: "absolute", width: 0, height: 0 }} width="0" height="0">
+        <defs>
+          <filter id="chromatic-distortion">
+            <feTurbulence type="fractalNoise" baseFrequency="0.01 0.03" numOctaves="1" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" result="distorted" id="displacement-map" />
+            <feColorMatrix type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" in="distorted" result="red" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0" in="distorted" result="green" />
+            <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0" in="distorted" result="blue" />
+            <feOffset dx="0" dy="0" in="red" result="red-off" id="red-offset" />
+            <feOffset dx="0" dy="0" in="green" result="green-off" />
+            <feOffset dx="0" dy="0" in="blue" result="blue-off" id="blue-offset" />
+            <feBlend mode="screen" in="red-off" in2="green-off" result="rg" />
+            <feBlend mode="screen" in="rg" in2="blue-off" result="rgb" />
+          </filter>
+        </defs>
+      </svg>
     </div>
   );
 };
