@@ -1,9 +1,6 @@
-import AnimatedText from "@/components/AnimatedText";
-import { GithubIcon } from "@/components/Icons";
 import Layout from "@/components/Layout";
 import Head from "next/head";
 import Image from "next/image";
-import Link from "next/link";
 import { useRef } from "react";
 import SplitTextMori from "@/components/SplitTextMori";
 
@@ -14,67 +11,7 @@ import proj4 from "../../public/images/projects/wwgi.png";
 import proj5 from "../../public/images/projects/MaritimX.png";
 import proj6 from "../../public/images/projects/turbines.png";
 
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-
-const FramerImage = motion(Image);
-
-interface MovingImgProps {
-  title: string;
-  img: any;
-  link: string;
-}
-
-const MovingImg = ({ title, img, link }: MovingImgProps) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-  const imgRef = useRef<HTMLImageElement>(null);
-
-  function handleMouse(event: React.MouseEvent) {
-    if (imgRef.current) {
-      imgRef.current.style.display = "inline-block";
-    }
-    x.set(event.pageX);
-    y.set(-10);
-  }
-
-  function handleMouseLeave(event: React.MouseEvent) {
-    if (imgRef.current) {
-      imgRef.current.style.display = "none";
-    }
-    x.set(0);
-    y.set(0);
-  }
-  return (
-    <>
-      <Link
-        href={link}
-        target={"_blank"}
-        className="relative"
-        onMouseMove={handleMouse}
-        onMouseLeave={handleMouseLeave}
-      >
-        <h2 className="capitalize text-xl font-semibold hover:underline text-light md:text-lg xs:text-base sm:self-start">
-          {title}
-        </h2>
-        <FramerImage
-          src={img}
-          ref={imgRef}
-          alt={title}
-          className="w-96 h-auto z-10 hidden absolute rounded-lg md:!hidden"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1, transition: { duration: 0.2 } }}
-          style={{
-            x: x as any,
-            y: y as any,
-          }}
-          sizes="(max-width: 768px) 60vw,
-              (max-width: 1200px) 40vw,
-              33vw"
-        />
-      </Link>
-    </>
-  );
-};
+import { motion } from "framer-motion";
 
 interface ArticleProps {
   title: string;
@@ -83,20 +20,21 @@ interface ArticleProps {
   link?: string;
 }
 
-const Article = ({ img, title, date, link }: ArticleProps) => {
+const Article = ({ title }: ArticleProps) => {
   return (
-    <motion.li
-      initial={{ y: 50, opacity: 0 }}
+    <motion.div
+      initial={{ y: 30, opacity: 0 }}
       whileInView={{ y: 0, opacity: 1, transition: { duration: 0.4 } }}
       viewport={{ once: true }}
       className="w-full p-6 rounded-lg bg-dark/50 border border-light/10 backdrop-blur-sm"
     >
-      <p className="text-lg text-light/70 text-center">{title}</p>
-    </motion.li>
+      <p className="text-sm font-['Share_Tech_Mono'] text-light/50 tracking-wider text-center uppercase">{title}</p>
+    </motion.div>
   );
 };
 
 interface FeaturedProjectProps {
+  num: string;
   type: string;
   title: string;
   summary: string;
@@ -105,7 +43,45 @@ interface FeaturedProjectProps {
   tools: string;
 }
 
+const slugify = (text: string) => {
+  return text
+    .toString()
+    .toUpperCase()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\-]+/g, "")
+    .replace(/\-\-+/g, "-")
+    .trim();
+};
+
+const scanVariants = {
+  initial: { top: "0%", opacity: 0 },
+  visible: { opacity: 0 },
+  hover: {
+    top: ["0%", "100%"],
+    opacity: [0, 1, 1, 0],
+    transition: {
+      top: {
+        duration: 7.0,
+        repeat: Infinity,
+        ease: "linear"
+      },
+      opacity: {
+        duration: 7.0,
+        repeat: Infinity,
+        ease: "linear",
+        times: [0, 0.1, 0.9, 1]
+      }
+    }
+  }
+};
+
+const rowVariants = {
+  initial: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
+
 const FeaturedProject = ({
+  num,
   type,
   title,
   summary,
@@ -113,165 +89,188 @@ const FeaturedProject = ({
   link,
   tools
 }: FeaturedProjectProps) => {
-  const cardRef = useRef<HTMLAnchorElement>(null);
-  
-  const x = useMotionValue(0.5);
-  const y = useMotionValue(0.5);
-
-  const rotateXTransform = useTransform(y, [0, 1], [15, -15]); 
-  const rotateYTransform = useTransform(x, [0, 1], [-15, 15]); 
-  const innerXTransform = useTransform(x, [0, 1], [-10, 10]); 
-  const innerYTransform = useTransform(y, [0, 1], [-10, 10]); 
-
-  const rotateX = useSpring(rotateXTransform, { stiffness: 150, damping: 20 });
-  const rotateY = useSpring(rotateYTransform, { stiffness: 150, damping: 20 });
-  const innerX = useSpring(innerXTransform, { stiffness: 150, damping: 20 });
-  const innerY = useSpring(innerYTransform, { stiffness: 150, damping: 20 });
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    
-    x.set(mouseX / width);
-    y.set(mouseY / height);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0.5);
-    y.set(0.5);
-  };
-
   return (
+    <div className="project-row transition-opacity duration-500 w-full">
     <motion.div
-      style={{ perspective: 1000 }}
-      className="w-full h-full"
+      variants={rowVariants}
+      initial="initial"
+      whileInView="visible"
+      whileHover="hover"
+      viewport={{ once: true }}
+      className="w-full flex md:flex-col items-center md:items-start justify-between py-12 md:py-8 border-b border-light/10 gap-14 md:gap-6 group"
     >
-      <Link href={link} passHref legacyBehavior>
-        <motion.a
-          ref={cardRef}
-          onMouseMove={handleMouseMove}
-          onMouseLeave={handleMouseLeave}
-          style={{
-            rotateX,
-            rotateY,
-            transformStyle: "preserve-3d",
-          }}
-          className="rounded-2xl border border-light/20 bg-dark p-4 flex flex-col hover:cursor-pointer transition-colors duration-300 h-[320px] sm:h-auto select-none"
-        >
-          <motion.div
-            style={{
-              x: innerX,
-              y: innerY,
-              transformStyle: "preserve-3d",
-            }}
-            className="flex flex-col h-full w-full"
-          >
-            <div 
-              style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }} 
-              className="flex-1 overflow-hidden rounded-lg mb-3 relative"
-            >
+      <div className="flex-1 flex gap-8 sm:gap-4 items-start w-full">
+        <span className="font-['Bebas_Neue'] text-4xl sm:text-3xl text-light/20 select-none pt-1 leading-none tracking-wider">
+          {num}
+        </span>
+        
+        <div className="space-y-4 flex-1">
+          <h2 className="font-['Bebas_Neue'] text-5xl sm:text-3xl xs:text-2xl text-light leading-none tracking-wide transition-colors duration-200 uppercase">
+            {link ? (
+              <a href={link} target="_blank" rel="noopener noreferrer">
+                {title}
+              </a>
+            ) : (
+              title
+            )}
+          </h2>
+
+          <div className="flex flex-wrap gap-2">
+            {type && (
+              <span className="font-['Share_Tech_Mono'] text-[10px] sm:text-[9px] px-3 py-1 rounded border border-light/25 bg-transparent uppercase text-light/85 tracking-wider">
+                {type}
+              </span>
+            )}
+            {tools && (
+              <span className="font-['Share_Tech_Mono'] text-[10px] sm:text-[9px] px-3 py-1 rounded border border-light/25 bg-transparent uppercase text-light/85 tracking-wider">
+                {tools}
+              </span>
+            )}
+          </div>
+
+          {summary && (
+            <p className="font-['Share_Tech_Mono'] text-xs sm:text-[11px] text-light/50 max-w-xl leading-relaxed uppercase tracking-normal">
+              {summary}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div className="w-[280px] h-[195px] md:w-full md:h-52 flex-shrink-0 bg-[#0a0a0a]/90 border border-light/10 rounded-xl p-4 flex flex-col justify-between relative overflow-hidden shadow-xl transition-all duration-500 group-hover:border-light/30">
+        
+        <motion.div
+          variants={scanVariants}
+          className="absolute left-0 right-0 h-px bg-white shadow-[0_0_6px_rgba(255,255,255,0.6)] z-20 pointer-events-none"
+        />
+
+        <div className="font-['Share_Tech_Mono'] text-[8px] text-light/50 tracking-wider z-10 select-none uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          PROJECT_ID: {slugify(title)}
+        </div>
+
+        <div className="flex-1 my-1.5 relative overflow-hidden border border-light/10 bg-black z-10 transition-transform duration-500 group-hover:scale-105">
+          {link ? (
+            <a href={link} target="_blank" rel="noopener noreferrer" className="w-full h-full block overflow-hidden">
               <Image
                 src={img}
                 alt={title}
-                width={500}
-                height={300}
+                className="w-full h-full object-cover transition-transform duration-500"
+                draggable={false}
+              />
+            </a>
+          ) : (
+            <div className="w-full h-full block overflow-hidden">
+              <Image
+                src={img}
+                alt={title}
                 className="w-full h-full object-cover"
                 draggable={false}
               />
             </div>
-            <div style={{ transform: "translateZ(15px)" }}>
-              <h2 className="font-bold text-base sm:text-sm text-light">{title}</h2>
-              <div className="flex gap-1.5 mt-1.5 flex-wrap">
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-light/20 bg-light/5 text-light/80">{type}</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded border border-light/20 bg-light/5 text-light/80">{tools}</span>
-              </div>
-              {summary && <p className="text-light/60 text-xs mt-2 sm:text-[11px]">{summary}</p>}
-            </div>
-          </motion.div>
-        </motion.a>
-      </Link>
+          )}
+        </div>
+
+        <div className="flex justify-between items-center font-['Share_Tech_Mono'] text-[8px] text-light/50 tracking-wider z-10 select-none uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <span>SYSTEM_READY</span>
+        </div>
+
+      </div>
     </motion.div>
+    </div>
   );
 };
-
 
 export default function Projects({ isAppLoading = false }: { isAppLoading?: boolean }) {
   return (
     <>
       <Head>
         <title>Projects</title>
-        <meta name="description" content="" />
+        <meta name="description" content="Yoel Ginting - Portfolio Projects" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
       </Head>
 
       <main
-        className={`mb-16  flex w-full flex-col items-center justify-center text-light`}
+        className="mb-16 flex w-full flex-col items-center justify-center text-light"
       >
-        <Layout className="pt-16">
+        <Layout className="pt-24 lg:pt-20">
           <SplitTextMori
             text="Projects"
             className="mb-2 !text-3xl !leading-tight lg:!text-6xl sm:!text-5xl xs:!text-3xl"
             isAppLoading={isAppLoading}
           />
-          <p className="text-light/60 mb-12 text-center">
+          <p className="text-light/40 mb-12 text-center text-sm font-['Share_Tech_Mono'] uppercase tracking-wider">
             A selection of projects I've designed and developed
           </p>
-          <div className="max-w-5xl mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-3 gap-6 md:grid-cols-2 sm:grid-cols-1 sm:gap-4">
+          
+          <div className="max-w-4xl mx-auto px-4 sm:px-6">
+            <style>{`
+              .project-list:hover .project-row {
+                opacity: 0.50;
+              }
+              .project-list .project-row:hover {
+                opacity: 1 !important;
+              }
+            `}</style>
+            <div className="flex flex-col border-t border-light/10 project-list">
               <FeaturedProject
-                type="Development"
-                tools="CI"
+                num="01"
+                type="Design & Development"
+                tools="Next.js"
                 title="Word Wide Global Indonesia"
-                summary="Website PT. World Wide Global Indonesia"
+                summary="Website company profile for PT. World Wide Global Indonesia, designed to showcase global logistics and import services."
                 img={proj4}
                 link="https://www.wwgimpor.id/"
               />
               <FeaturedProject
+                num="02"
                 type="Development"
-                tools="React.js"
+                tools="React.js | Tailwind"
                 title="Maritim X Academy"
-                summary="Website untuk platform pendidikan oleh maritim muda nusantara"
+                summary="An interactive online academy platform developed for Maritim Muda Nusantara, supporting maritime education."
                 img={proj5}
                 link="https://maritimx.id/"
               />
               <FeaturedProject
+                num="03"
                 type="Design & Development"
-                tools="Next.js"
-                title="Turbines"
-                summary="Website HRIS untuk maritim muda nusantara"
+                tools="Next.js | CSS"
+                title="Turbines HRIS"
+                summary="A robust human resource information system built for Maritim Muda Nusantara to streamline administrative workflows."
                 img={proj6}
                 link="https://turbines.maritimepreneur.com/login"
               />
               <FeaturedProject
+                num="04"
                 type="Design & Development"
                 tools="Vue.js | Laravel"
-                title="DICEPATIN"
-                summary="Aplikasi cek pengiriman barang"
+                title="DICEPATIN Logistics"
+                summary="A comprehensive shipping and tracking application developed to check delivery rates and track courier shipments."
                 img={proj3}
                 link=""
               />
               <FeaturedProject
-                type="Clonning Development"
-                tools="Tailwind | Bootstrap"
-                title="Clonning Website Rinso.com"
-                summary="Clone website Rinso dengan Tailwind CSS"
+                num="05"
+                type="Cloning Development"
+                tools="Tailwind | HTML"
+                title="Rinso.com Clone"
+                summary="A responsive front-end clone of the official Rinso website, developed using Tailwind CSS for clean layout parity."
                 img={proj2}
                 link=""
               />
               <FeaturedProject
+                num="06"
                 type="Design & Development"
                 tools="Vue.js | Laravel"
-                title="Jaringan Doa"
-                summary="Platform jaringan doa untuk saling mendoakan"
+                title="Jaringan Doa Platform"
+                summary="A community-focused spiritual platform designed for users to share and participate in mutual prayer networks."
                 img={proj1}
                 link=""
               />
             </div>
           </div>
-          <div className="mt-16 text-center space-y-6 px-4 sm:px-6 sm:mt-12">
+
+          <div className="max-w-4xl mx-auto mt-16 px-4 sm:px-6">
             <Article
               title="Adding more soon, thanks for the interest!"
               link="/"
