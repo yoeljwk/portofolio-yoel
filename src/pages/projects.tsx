@@ -5,6 +5,7 @@ import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRef } from "react";
+import SplitTextMori from "@/components/SplitTextMori";
 
 import proj1 from "../../public/images/projects/jaringan-doa.png";
 import proj2 from "../../public/images/projects/clone-rinso.png";
@@ -13,7 +14,7 @@ import proj4 from "../../public/images/projects/wwgi.png";
 import proj5 from "../../public/images/projects/MaritimX.png";
 import proj6 from "../../public/images/projects/turbines.png";
 
-import { motion, useMotionValue } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const FramerImage = motion(Image);
 
@@ -95,6 +96,15 @@ const Article = ({ img, title, date, link }: ArticleProps) => {
   );
 };
 
+interface FeaturedProjectProps {
+  type: string;
+  title: string;
+  summary: string;
+  img: any;
+  link: string;
+  tools: string;
+}
+
 const FeaturedProject = ({
   type,
   title,
@@ -102,35 +112,94 @@ const FeaturedProject = ({
   img,
   link,
   tools
-}) => {
+}: FeaturedProjectProps) => {
+  const cardRef = useRef<HTMLAnchorElement>(null);
+  
+  const x = useMotionValue(0.5);
+  const y = useMotionValue(0.5);
+
+  const rotateXTransform = useTransform(y, [0, 1], [15, -15]); 
+  const rotateYTransform = useTransform(x, [0, 1], [-15, 15]); 
+  const innerXTransform = useTransform(x, [0, 1], [-10, 10]); 
+  const innerYTransform = useTransform(y, [0, 1], [-10, 10]); 
+
+  const rotateX = useSpring(rotateXTransform, { stiffness: 150, damping: 20 });
+  const rotateY = useSpring(rotateYTransform, { stiffness: 150, damping: 20 });
+  const innerX = useSpring(innerXTransform, { stiffness: 150, damping: 20 });
+  const innerY = useSpring(innerYTransform, { stiffness: 150, damping: 20 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    
+    x.set(mouseX / width);
+    y.set(mouseY / height);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0.5);
+    y.set(0.5);
+  };
+
   return (
-    <Link
-      href={link}
-      className="rounded-2xl border border-light/20 bg-dark p-4 flex flex-col hover:cursor-pointer transition-all hover:scale-[1.03] h-[320px] sm:h-auto"
+    <motion.div
+      style={{ perspective: 1000 }}
+      className="w-full h-full"
     >
-      <div className="flex-1 overflow-hidden rounded-lg mb-3">
-        <Image
-          src={img}
-          alt={title}
-          width={500}
-          height={300}
-          className="w-full h-full object-cover"
-        />
-      </div>
-      <div>
-        <h2 className="font-bold text-base sm:text-sm">{title}</h2>
-        <div className="flex gap-1.5 mt-1.5 flex-wrap">
-          <span className="text-[10px] px-1.5 py-0.5 rounded border border-light/20 bg-light/5">{type}</span>
-          <span className="text-[10px] px-1.5 py-0.5 rounded border border-light/20 bg-light/5">{tools}</span>
-        </div>
-        {summary && <p className="text-light/60 text-xs mt-2 sm:text-[11px]">{summary}</p>}
-      </div>
-    </Link>
+      <Link href={link} passHref legacyBehavior>
+        <motion.a
+          ref={cardRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          style={{
+            rotateX,
+            rotateY,
+            transformStyle: "preserve-3d",
+          }}
+          className="rounded-2xl border border-light/20 bg-dark p-4 flex flex-col hover:cursor-pointer transition-colors duration-300 h-[320px] sm:h-auto select-none"
+        >
+          <motion.div
+            style={{
+              x: innerX,
+              y: innerY,
+              transformStyle: "preserve-3d",
+            }}
+            className="flex flex-col h-full w-full"
+          >
+            <div 
+              style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }} 
+              className="flex-1 overflow-hidden rounded-lg mb-3 relative"
+            >
+              <Image
+                src={img}
+                alt={title}
+                width={500}
+                height={300}
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            </div>
+            <div style={{ transform: "translateZ(15px)" }}>
+              <h2 className="font-bold text-base sm:text-sm text-light">{title}</h2>
+              <div className="flex gap-1.5 mt-1.5 flex-wrap">
+                <span className="text-[10px] px-1.5 py-0.5 rounded border border-light/20 bg-light/5 text-light/80">{type}</span>
+                <span className="text-[10px] px-1.5 py-0.5 rounded border border-light/20 bg-light/5 text-light/80">{tools}</span>
+              </div>
+              {summary && <p className="text-light/60 text-xs mt-2 sm:text-[11px]">{summary}</p>}
+            </div>
+          </motion.div>
+        </motion.a>
+      </Link>
+    </motion.div>
   );
 };
 
 
-export default function Projects() {
+export default function Projects({ isAppLoading = false }: { isAppLoading?: boolean }) {
   return (
     <>
       <Head>
@@ -142,10 +211,14 @@ export default function Projects() {
         className={`mb-16  flex w-full flex-col items-center justify-center text-light`}
       >
         <Layout className="pt-16">
-          <AnimatedText
-            text="Projects ✨"
-            className="mb-12 !text-xl !leading-tight lg:!text-6xl sm:mb-8 sm:!text-5xl xs:!text-3xl"
+          <SplitTextMori
+            text="Projects"
+            className="mb-2 !text-3xl !leading-tight lg:!text-6xl sm:!text-5xl xs:!text-3xl"
+            isAppLoading={isAppLoading}
           />
+          <p className="text-light/60 mb-12 text-center">
+            A selection of projects I've designed and developed
+          </p>
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-3 gap-6 md:grid-cols-2 sm:grid-cols-1 sm:gap-4">
               <FeaturedProject

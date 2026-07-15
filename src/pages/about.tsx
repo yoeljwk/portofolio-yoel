@@ -9,6 +9,7 @@ import Skills from "@/components/Skills";
 import Experience from "@/components/Experience";
 import AnimatedText from "@/components/AnimatedText";
 import TypingCode from "@/components/TypingCode";
+import SplitTextMori from "@/components/SplitTextMori";
 
 const FloatingImages = ({ isHovered }) => {
   const [positions, setPositions] = useState([]);
@@ -78,7 +79,6 @@ const FloatingImages = ({ isHovered }) => {
   );
 };
 
-
 function AnimatedNumberFramerMotion({ value }) {
   const ref = useRef(null);
   const motionValue = useMotionValue(0);
@@ -103,20 +103,76 @@ function AnimatedNumberFramerMotion({ value }) {
   return <span ref={ref} />;
 }
 
-export default function About() {
+export default function About({ isAppLoading = false }: { isAppLoading?: boolean }) {
   const [activeView, setActiveView] = useState("vscode");
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  const cardRef = useRef<HTMLDivElement>(null);
+  const mouseX = useMotionValue(125);
+  const mouseY = useMotionValue(125);
+
+  const rotateXTransform = useTransform(mouseY, (val) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    const height = rect?.height || 250;
+    const normY = val / height;
+    return 15 - normY * 30;
+  });
+
+  const rotateYTransform = useTransform(mouseX, (val) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    const width = rect?.width || 250;
+    const normX = val / width;
+    return -15 + normX * 30;
+  });
+
+  const innerXTransform = useTransform(mouseX, (val) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    const width = rect?.width || 250;
+    const normX = val / width;
+    return -10 + normX * 20;
+  });
+
+  const innerYTransform = useTransform(mouseY, (val) => {
+    const rect = cardRef.current?.getBoundingClientRect();
+    const height = rect?.height || 250;
+    const normY = val / height;
+    return -10 + normY * 20;
+  });
+
+  const rotateX = useSpring(rotateXTransform, { stiffness: 150, damping: 20 });
+  const rotateY = useSpring(rotateYTransform, { stiffness: 150, damping: 20 });
+  const innerX = useSpring(innerXTransform, { stiffness: 150, damping: 20 });
+  const innerY = useSpring(innerYTransform, { stiffness: 150, damping: 20 });
 
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 800], [1, 0]);
 
   const handleMouseMove = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const localX = e.clientX - rect.left;
+    const localY = e.clientY - rect.top;
+
+    mouseX.set(localX);
+    mouseY.set(localY);
+
     setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
+      x: localX,
+      y: localY,
     });
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    if (cardRef.current) {
+      const rect = cardRef.current.getBoundingClientRect();
+      mouseX.set(rect.width / 2);
+      mouseY.set(rect.height / 2);
+    } else {
+      mouseX.set(125);
+      mouseY.set(125);
+    }
   };
 
   return (
@@ -129,13 +185,17 @@ export default function About() {
         />
       </Head>
 
-      <div className={`w-full min-h-screen text-light`}>
+      <div className={`w-full min-h-screen text-light grain-bg`}>
         <Layout className="pt-16 !bg-transparent">
           <div className="max-w-7xl mx-auto w-full">
-            <AnimatedText
-              text="Get to know me"
-              className="mb-16 !text-3xl !leading-tight lg:!text-7xl sm:!text-6xl xs:!text-xl text-blue-500 sm:mb-8"
+            <SplitTextMori
+              text="About"
+              className="mb-2 !text-3xl !leading-tight lg:!text-6xl sm:!text-5xl xs:!text-3xl text-light"
+              isAppLoading={isAppLoading}
             />
+            <p className="text-light/60 mb-12 text-center">
+              More about who I am
+            </p>
 
             <div className="grid w-full grid-cols-8 gap-16 sm:gap-8 md:gap-6">
               <div
@@ -214,9 +274,11 @@ export default function About() {
               "
               >
                 <div
+                  ref={cardRef}
                   className="relative w-full max-w-xs mt-20 xl:translate-x-0 md:mt-0 md:max-w-[250px] sm:max-w-[200px]"
+                  style={{ perspective: 1000 }}
                   onMouseEnter={() => setIsHovered(true)}
-                  onMouseLeave={() => setIsHovered(false)}
+                  onMouseLeave={handleMouseLeave}
                   onMouseMove={handleMouseMove}
                 >
                   <FloatingImages isHovered={isHovered} />
@@ -246,7 +308,12 @@ export default function About() {
                     </motion.div>
                   )}
                   <motion.div
-                    style={{ opacity }}
+                    style={{
+                      opacity,
+                      rotateX,
+                      rotateY,
+                      transformStyle: "preserve-3d",
+                    }}
                     animate={{ y: [0, -20, 0] }}
                     transition={{
                       duration: 3,
@@ -254,13 +321,24 @@ export default function About() {
                       ease: "easeInOut",
                     }}
                   >
-                    <Image
-                      className="h-auto w-full relative z-20 profile-img"
-                      priority={true}
-                      src={profab}
-                      alt="Yoel Ginting"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
+                    <motion.div
+                      style={{
+                        x: innerX,
+                        y: innerY,
+                        transformStyle: "preserve-3d",
+                      }}
+                      className="w-full h-full"
+                    >
+                      <div style={{ transform: "translateZ(30px)" }}>
+                        <Image
+                          className="h-auto w-full relative z-20 profile-img"
+                          priority={true}
+                          src={profab}
+                          alt="Yoel Ginting"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        />
+                      </div>
+                    </motion.div>
                   </motion.div>
                 </div>
               </div>

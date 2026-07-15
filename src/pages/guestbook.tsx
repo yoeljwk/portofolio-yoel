@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import Head from "next/head";
 import AnimatedText from "@/components/AnimatedText";
+import SplitTextMori from "@/components/SplitTextMori";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import {
@@ -33,7 +34,7 @@ const formatDate = (timestamp) => {
   } catch { return "…"; }
 };
 
-export default function Guestbook() {
+export default function Guestbook({ isAppLoading = false }: { isAppLoading?: boolean }) {
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
   const [inputText, setInputText] = useState("");
@@ -136,7 +137,7 @@ export default function Guestbook() {
 
             {/* Header */}
             <div className="max-w-2xl mx-auto mb-4">
-              <AnimatedText text="Guestbook" className="!text-3xl lg:!text-2xl sm:!text-xl" />
+              <SplitTextMori text="Guestbook" className="mb-2 !text-3xl !leading-tight lg:!text-6xl sm:!text-5xl xs:!text-3xl" isAppLoading={isAppLoading} />
               <p className="text-light/60 text-sm mt-1">
                 Tinggalkan pesan, saran, atau sekadar sapaan hangat. Semua pesan tersimpan dan terlihat oleh semua orang!
               </p>

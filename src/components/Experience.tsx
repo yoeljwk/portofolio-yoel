@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { motion, useScroll } from "framer-motion";
+import { motion, useScroll, useMotionValue, useSpring, useTransform } from "framer-motion";
 import LiIcon from "./LiIcon";
 import Link from "next/link";
 import Image from "next/image";
@@ -69,6 +69,78 @@ const Details = ({ company, position, time, address, work, logo }: DetailsProps)
   );
 };
 
+interface MagneticLinkProps {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+}
+
+const MagneticLink = ({ href, children, className = "" }: MagneticLinkProps) => {
+  const zoneRef = useRef<HTMLDivElement>(null);
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const [springConfig, setSpringConfig] = React.useState({ stiffness: 150, damping: 15, mass: 0.6 });
+  const springX = useSpring(x, springConfig);
+  const springY = useSpring(y, springConfig);
+
+  const labelX = useTransform(springX, (val) => val * 0.4);
+  const labelY = useTransform(springY, (val) => val * 0.4);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!zoneRef.current) return;
+    const rect = zoneRef.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const relativeX = e.clientX - centerX;
+    const relativeY = e.clientY - centerY;
+
+    setSpringConfig({ stiffness: 180, damping: 20, mass: 0.4 });
+    x.set(relativeX * 0.35);
+    y.set(relativeY * 0.35);
+  };
+
+  const handleMouseLeave = () => {
+    setSpringConfig({ stiffness: 100, damping: 8, mass: 0.8 });
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <div
+      ref={zoneRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="flex items-center justify-center cursor-pointer relative"
+      style={{
+        width: "220px",
+        height: "100px",
+      }}
+    >
+      <Link href={href} passHref legacyBehavior>
+        <motion.a
+          style={{
+            x: springX,
+            y: springY,
+            transformStyle: "preserve-3d",
+          }}
+          className={`${className} relative z-10 flex items-center justify-center`}
+        >
+          <motion.span
+            style={{
+              x: labelX,
+              y: labelY,
+            }}
+            className="select-none pointer-events-none"
+          >
+            {children}
+          </motion.span>
+        </motion.a>
+      </Link>
+    </div>
+  );
+};
+
 const Experience = () => {
   const ref = useRef(null);
 
@@ -122,16 +194,15 @@ const Experience = () => {
         </ul>
       </div>
       <div className="mt-40 sm:mt-20 flex items-center justify-between gap-3">
-        <Link
+        <MagneticLink
           href="/projects/"
-          target={"_self"}
           className={`flex items-center rounded-lg border-2 border-solid bg-dark p-2.5 px-6 text-lg font-semibold
             capitalize text-light hover:border-light hover:bg-light hover:text-dark 
             md:p-2 md:px-4 md:text-base sm:text-sm sm:px-3 sm:py-2
              `}
         >
-          View Projects
-        </Link>
+          View Project
+        </MagneticLink>
       </div>
     </div>
   );

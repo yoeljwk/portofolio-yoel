@@ -1,6 +1,7 @@
 import Layout from "@/components/Layout";
 import Head from "next/head";
 import AnimatedText from "@/components/AnimatedText";
+import SplitTextMori from "@/components/SplitTextMori";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
@@ -64,7 +65,7 @@ const blogPosts = [
   },
 ];
 
-export default function Blog() {
+export default function Blog({ isAppLoading = false }: { isAppLoading?: boolean }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
@@ -92,9 +93,10 @@ export default function Blog() {
       <main className="flex w-full flex-col items-center justify-center text-light">
         <Layout className="pt-16">
           <div className="max-w-7xl mx-auto w-full">
-            <AnimatedText
+            <SplitTextMori
               text="Blog & Articles"
-              className="mb-4 !text-3xl !leading-tight lg:!text-7xl sm:!text-6xl xs:!text-4xl"
+              className="mb-2 !text-3xl !leading-tight lg:!text-6xl sm:!text-5xl xs:!text-3xl"
+              isAppLoading={isAppLoading}
             />
             <p className="text-light/60 mb-12 text-center">
               Sharing knowledge and experiences in web development
