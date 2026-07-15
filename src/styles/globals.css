@@ -90,3 +90,41 @@ img.h-auto.w-full:not(.profile-img) {border: 2px solid black; border-radius: 10p
 .animate-bounce-char {
   animation: bounce-char 1s ease-in-out infinite;
 }
+
+@font-face {
+  font-display: block;
+  font-family: Mori;
+  font-style: normal;
+  src: url(https://assets.codepen.io/16327/PPMori-SemiBold.woff) format("woff");
+}
+
+.font-mori {
+  font-family: "Mori", sans-serif;
+}
+
+.char-box {
+  border: 1px dotted rgba(255, 255, 255, 0.6); /* White dotted border */
+  padding: 2px 4px;
+  margin: 0 1px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0px;
+  display: inline-block;
+  will-change: transform;
+}
+
+.grain-bg {
+  position: relative;
+}
+
+.grain-bg::after {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -50;
+  pointer-events: none;
+  opacity: 0.06; /* Subtle/thin grain overlay */
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}

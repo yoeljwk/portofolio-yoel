@@ -169,12 +169,7 @@ export default function App({ Component, pageProps }) {
         `}</style>
       )}
       <main
-        className={`${montserrat.variable} font-mont w-full min-h-screen h-full relative z-0 ${
-          isAboutPage ? '' : 'bg-black'
-        }`}
-        style={isAboutPage ? {
-          background: `url(/images/background.jpg) center calc(100% + 50px)/cover fixed`
-        } : {}}
+        className={`${montserrat.variable} font-mont w-full min-h-screen h-full relative z-0 bg-black`}
       >
         {navMode === "navbar" && <Navbar navMode={navMode} setNavMode={handleSetNavMode} />}
         {navMode === "navbar" && <div className="h-20 lg:h-16" />}
@@ -258,7 +253,7 @@ export default function App({ Component, pageProps }) {
             )}
             <div className="flex-grow">
               <AnimatePresence initial={false} mode="wait">
-                <Component key={router.asPath} {...pageProps} />
+                <Component key={router.asPath} {...pageProps} isAppLoading={loading} />
               </AnimatePresence>
             </div>
             <Footer />

@@ -4,6 +4,7 @@ import Layout from "@/components/Layout";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from "framer-motion";
 import HeroLottie from "@/components/HeroLottie";
 import LiveChat from "@/components/LiveChat";
 import LatestPosts from "@/components/LatestPosts";
@@ -12,7 +13,107 @@ import FloatingBackground from "@/components/FloatingBackground";
 
 
 
-export default function Home() {
+
+interface TextPart {
+  text: string;
+  isGradient?: boolean;
+  colorClass?: string;
+}
+
+const headlineLines = [
+  [
+    { text: "When the ", isGradient: false },
+    { text: "code", isGradient: true, colorClass: "bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700" },
+    { text: " works,", isGradient: false }
+  ],
+  [
+    { text: "dreams", isGradient: true, colorClass: "bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600" },
+    { text: " move forward.", isGradient: false }
+  ]
+];
+
+const SplitHeadline = ({ isAppLoading = false }: { isAppLoading?: boolean }) => {
+  let globalCharIdx = 0;
+
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.03,
+      }
+    }
+  };
+
+  const charVariants = {
+    hidden: { x: 150, opacity: 0 },
+    visible: (index: number) => ({
+      x: 0,
+      opacity: 1,
+      transition: {
+        duration: 0.7,
+        ease: [0.16, 1, 0.3, 1], 
+        delay: index * 0.03,
+      }
+    })
+  };
+
+  return (
+    <motion.div
+      variants={containerVariants}
+      initial="hidden"
+      animate={isAppLoading ? "hidden" : "visible"}
+      className="relative inline-block text-left w-full"
+    >
+      {headlineLines.map((line, lineIdx) => (
+        <h2
+          key={lineIdx}
+          className="font-semibold mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light flex flex-wrap items-center lg:justify-center gap-y-1"
+        >
+          {line.map((part, partIdx) => {
+            const words = part.text.split(/(\s+)/);
+            return words.map((word, wordIdx) => {
+              if (/^\s+$/.test(word)) {
+                return (
+                  <span key={`space-${lineIdx}-${partIdx}-${wordIdx}`} className="inline-block w-[0.27em]">
+                    &nbsp;
+                  </span>
+                );
+              }
+              if (word === "") return null;
+
+              return (
+                <span
+                  key={`word-${lineIdx}-${partIdx}-${wordIdx}`}
+                  className="inline-block whitespace-nowrap"
+                >
+                  {word.split("").map((char, charIdx) => {
+                    const currentIndex = globalCharIdx++;
+                    return (
+                      <motion.span
+                        key={`char-${lineIdx}-${partIdx}-${wordIdx}-${charIdx}`}
+                        variants={charVariants}
+                        custom={currentIndex}
+                        className={
+                          part.isGradient
+                            ? `inline-block bg-clip-text text-transparent ${part.colorClass}`
+                            : "inline-block text-light"
+                        }
+                      >
+                        {char}
+                      </motion.span>
+                    );
+                  })}
+                </span>
+              );
+            });
+          })}
+        </h2>
+      ))}
+    </motion.div>
+  );
+};
+
+export default function Home({ isAppLoading = false }: { isAppLoading?: boolean }) {
   return (
     <>
       <Head>
@@ -35,19 +136,7 @@ export default function Home() {
             </div>
             <div className="flex w-1/2 flex-col items-left self-center lg:w-full lg:text-center md:mt-0 sm:-mt-10">
               <div className="relative inline-block">
-                <h2 className="font-semibold capitalize mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light">
-                  When the{" "}
-                  <span className="animate-text bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 bg-clip-text text-transparent">
-                    code
-                  </span>{" "}
-                  works,
-                </h2>
-                <h2 className="font-semibold capitalize mb-4 !text-5xl xl:!text-4xl lg:!text-4xl md:!text-5xl sm:!text-3xl text-light">
-                  <span className="animate-text bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                    dreams
-                  </span>{" "}
-                  move forward.
-                </h2>
+                <SplitHeadline isAppLoading={isAppLoading} />
 
                 <div className="absolute block md:hidden -bottom-24 left-[66%] w-72 h-44 pointer-events-none select-none">
                   <Image
