@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import {
   Files, Search, Menu,
@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faReact, faInstagram, faLinkedinIn, faGithub } from "@fortawesome/free-brands-svg-icons";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 const TsxIcon = ({ size, className }: { size?: number; className?: string }) => (
   <FontAwesomeIcon
@@ -15,6 +16,105 @@ const TsxIcon = ({ size, className }: { size?: number; className?: string }) => 
     className={className}
   />
 );
+
+interface DockItemProps {
+  mouseY: any;
+  children: React.ReactNode;
+  min: number;
+  max: number;
+  bound: number;
+}
+
+function DockItem({ mouseY, children, min, max, bound }: DockItemProps) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const distance = useTransform(mouseY, (val: number) => {
+    if (val === Infinity) return Infinity;
+    const bounds = ref.current?.getBoundingClientRect();
+    if (!bounds) return Infinity;
+    const centerY = bounds.top + bounds.height / 2;
+    return centerY - val;
+  });
+
+  const scaleTransform = useTransform(distance, (d: number) => {
+    if (d === Infinity || d < -bound || d > bound) return 1;
+    const rad = (d / min) * 0.5;
+    return 1 + (max / min - 1) * Math.cos(rad);
+  });
+
+  const yTransform = useTransform(distance, (d: number) => {
+    if (d === Infinity) return 0;
+    if (d < -bound || d > bound) {
+      return (d > 0 ? 1.6 : -1.6) * (max - min);
+    }
+    const rad = (d / min) * 0.5;
+    return 1.6 * (max - min) * Math.sin(rad);
+  });
+
+  const xTransform = useTransform(distance, (d: number) => {
+    if (d === Infinity || d < -bound || d > bound) return 0;
+    const rad = (d / min) * 0.5;
+    return 14 * Math.cos(rad); 
+  });
+
+  const scale = useSpring(scaleTransform, { mass: 0.1, stiffness: 220, damping: 16 });
+  const y = useSpring(yTransform, { mass: 0.1, stiffness: 220, damping: 16 });
+  const x = useSpring(xTransform, { mass: 0.1, stiffness: 220, damping: 16 });
+
+  return (
+    <motion.div
+      ref={ref}
+      style={{ scale, y, x }}
+      className="flex items-center justify-center relative origin-left z-10"
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+function VerticalDock({ children }: { children: React.ReactNode }) {
+  const mouseY = useMotionValue(Infinity);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    mouseY.set(e.clientY);
+  };
+
+  const handleMouseLeave = () => {
+    mouseY.set(Infinity);
+  };
+
+  const min = 44; 
+  const max = 66; 
+  const bound = min * Math.PI;
+
+  return (
+    <motion.div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className="flex flex-col gap-3 w-full items-center py-2"
+    >
+      {React.Children.map(children, (child) => {
+        if (!child) return null;
+        
+   
+        if (
+          React.isValidElement(child) && 
+          (child.type === "div" || (child.props as any).className?.includes("border-t"))
+        ) {
+          return child;
+        }
+
+        return (
+          <DockItem mouseY={mouseY} min={min} max={max} bound={bound}>
+            {child}
+          </DockItem>
+        );
+      })}
+    </motion.div>
+  );
+}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -126,7 +226,7 @@ export default function Sidebar({
         style={{ height: '100vh' }}
       >
         <div className="w-[50px] bg-transparent flex flex-col justify-between items-center">
-          <div className="flex flex-col gap-2 w-full items-center">
+          <VerticalDock>
             <button
               onClick={() => handleTabClick("explorer")}
               title="Explorer"
@@ -188,7 +288,7 @@ export default function Sidebar({
             >
               <Menu size={22} className="stroke-[1.5]" />
             </button>
-          </div>
+          </VerticalDock>
         </div>
 
         <div
