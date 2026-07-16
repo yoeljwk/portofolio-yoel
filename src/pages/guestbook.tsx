@@ -1,6 +1,5 @@
 import Layout from "@/components/Layout";
 import Head from "next/head";
-import AnimatedText from "@/components/AnimatedText";
 import SplitTextMori from "@/components/SplitTextMori";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useRef } from "react";

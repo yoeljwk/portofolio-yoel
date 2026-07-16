@@ -26,8 +26,7 @@ const TypingCode = ({ width = "500px", height = "560px", minHeight = "500px" }) 
 <span class="token-tag">&lt;/div&gt;</span>`
       ],
       typeSpeed: 20,
-      showCursor: true,
-      cursorChar: "|",
+      showCursor: false,
       loop: false,
       contentType: "html",
       onStringTyped: () => {
@@ -60,8 +59,7 @@ const TypingCode = ({ width = "500px", height = "560px", minHeight = "500px" }) 
       const terminalTyped = new Typed(terminalRef.current, {
         strings: ["npm run dev"],
         typeSpeed: 80,
-        showCursor: true,
-        cursorChar: "_",
+        showCursor: false,
         loop: false
       });
 
@@ -71,6 +69,27 @@ const TypingCode = ({ width = "500px", height = "560px", minHeight = "500px" }) 
 
   return (
     <div className="w-full">
+      {/* Universal CSS Cursor blink rules that don't modify DOM nodes */}
+      <style>{`
+        .code-cursor::after {
+          content: "|";
+          color: #facc15;
+          animation: cursor-blink 1s infinite;
+          margin-left: 2px;
+          font-weight: bold;
+        }
+        .terminal-cursor::after {
+          content: "_";
+          color: #d4d4d4;
+          animation: cursor-blink 1s infinite;
+          margin-left: 2px;
+        }
+        @keyframes cursor-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+      `}</style>
+
       {/* VS Code Window */}
       <div 
         className="bg-[#1e1e1e] rounded-lg shadow-2xl overflow-hidden border border-[#333] md:text-xs"
@@ -118,7 +137,7 @@ const TypingCode = ({ width = "500px", height = "560px", minHeight = "500px" }) 
               }}
             />
             <pre className="whitespace-pre relative z-10">
-              <span ref={typedRef}></span>
+              <span ref={typedRef} className="code-cursor"></span>
             </pre>
           </div>
         </div>
@@ -132,7 +151,7 @@ const TypingCode = ({ width = "500px", height = "560px", minHeight = "500px" }) 
           </div>
           <div className="p-4 font-mono text-sm text-[#d4d4d4] md:p-3 md:text-xs">
             <span className="text-[#4ec9b0]">PS C:\yoelgntng&gt;</span>{" "}
-            <span ref={terminalRef}></span>
+            <span ref={terminalRef} className="terminal-cursor"></span>
           </div>
         </div>
       </div>

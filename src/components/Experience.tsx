@@ -28,7 +28,7 @@ const Details = ({ company, position, time, address, work, logo }: DetailsProps)
         transition={{ duration: 0.5, type: "spring" }}
         className="w-full"
       >
-        <div 
+        <div
           className="bg-gradient-to-br from-dark/80 to-dark/40 border border-light/20 rounded-xl p-6 sm:p-4 backdrop-blur-sm hover:border-white/50 transition-all duration-300 shadow-lg hover:shadow-white/20"
           style={{ filter: "url(#chromatic-distortion)" }}
         >
@@ -145,7 +145,15 @@ const MagneticLink = ({ href, children, className = "" }: MagneticLinkProps) => 
   );
 };
 
-const Experience = () => {
+interface ExperienceItem {
+  company: string;
+  position: string;
+  time: string;
+  work?: string;
+  logo?: string;
+}
+
+const Experience = ({ experiences = [] }: { experiences?: ExperienceItem[] }) => {
   const ref = useRef(null);
 
   const { scrollYProgress } = useScroll({
@@ -174,11 +182,11 @@ const Experience = () => {
         if (Math.abs(strength) > Math.abs(velocityProxy.s)) {
           velocityProxy.v = norm;
           velocityProxy.s = strength;
-          
+
           gsap.to(velocityProxy, {
             v: 0,
             s: 0,
-            duration: 2, 
+            duration: 2,
             ease: "power2.out",
             overwrite: true
           });
@@ -224,34 +232,49 @@ const Experience = () => {
         />
 
         <ul className="w-full flex flex-col items-start justify-between ml-4 xs:ml-2">
-          <Details
-            company="Maritim Muda Nusantara"
-            position="Web Developer"
-            time="Des 2025 – Jun 2026"
-            work="Developing and maintaining websites"
-            logo="/images/logo-maritim.png"
-          />
-          <Details
-            company="SDA Media"
-            position="Fullstack Developer"
-            time="2024 - 2024"
-            work="Developing and maintaining websites using Laravel and MySQL. Collaborating in project planning, code reviews, and sprint planning. Active in technical requirements meetings and using GitLab for version control. Contributing to application testing with focus on bug identification and performance improvements."
-            logo="/images/logo-sda.png"
-          />
-          <Details
-            company="Bangkit Academy"
-            position="Cloud Engineer Cohort"
-            time="Feb 2024 – July 2024"
-            work="Led by Google, Tokopedia, Gojek, & Traveloka. Intensive program focused on cloud computing technologies and best practices."
-            logo="/images/logo-bangkit.png"
-          />
-          <Details
-            company="Universitas Advent Indonesia"
-            position="Dormitory Monitor"
-            time="2021 - 2023"
-            work="Monitored and maintained orderliness of students living in the men's dormitory, ensuring a conducive living environment."
-            logo="/images/logo-unai.png"
-          />
+          {experiences && experiences.length > 0 ? (
+            experiences.map((exp, idx) => (
+              <Details
+                key={idx}
+                company={exp.company}
+                position={exp.position}
+                time={exp.time}
+                work={exp.work}
+                logo={exp.logo}
+              />
+            ))
+          ) : (
+            <>
+              <Details
+                company="Maritim Muda Nusantara"
+                position="Web Developer"
+                time="Des 2025 – Jun 2026"
+                work="Developing and maintaining websites"
+                logo="/images/logo-maritim.png"
+              />
+              <Details
+                company="SDA Media"
+                position="Fullstack Developer"
+                time="2024 - 2024"
+                work="Developing and maintaining websites using Laravel and MySQL. Collaborating in project planning, code reviews, and sprint planning. Active in technical requirements meetings and using GitLab for version control. Contributing to application testing with focus on bug identification and performance improvements."
+                logo="/images/logo-sda.png"
+              />
+              <Details
+                company="Bangkit Academy"
+                position="Cloud Engineer Cohort"
+                time="Feb 2024 – July 2024"
+                work="Led by Google, Tokopedia, Gojek, & Traveloka. Intensive program focused on cloud computing technologies and best practices."
+                logo="/images/logo-bangkit.png"
+              />
+              <Details
+                company="Universitas Advent Indonesia"
+                position="Dormitory Monitor"
+                time="2021 - 2023"
+                work="Monitored and maintained orderliness of students living in the men's dormitory, ensuring a conducive living environment."
+                logo="/images/logo-unai.png"
+              />
+            </>
+          )}
         </ul>
       </div>
 

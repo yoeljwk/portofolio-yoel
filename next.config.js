@@ -1,5 +1,7 @@
 /** @type {import('next').NextConfig} */
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const securityHeaders = [
   {
     key: 'X-DNS-Prefetch-Control',
@@ -33,7 +35,9 @@ const securityHeaders = [
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://api.dicebear.com https://*.googleusercontent.com https://*.githubusercontent.com",
-      "connect-src 'self' https://api.openweathermap.org https://*.googleapis.com https://*.firebaseio.com https://*.firestore.googleapis.com wss://*.firebaseio.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
+      `connect-src 'self' https://api.openweathermap.org https://*.googleapis.com https://*.firebaseio.com https://*.firestore.googleapis.com wss://*.firebaseio.com wss://*.firebase.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com${
+        isDev ? ' ws://localhost:* ws://127.0.0.1:* http://localhost:* ws://*.hot-reload.local:*' : ''
+      }`,
       "frame-src https://accounts.google.com https://*.firebaseapp.com",
       "frame-ancestors 'none'",
     ].join('; '),

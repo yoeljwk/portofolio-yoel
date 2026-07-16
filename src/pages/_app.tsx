@@ -6,7 +6,10 @@ import { AnimatePresence } from "framer-motion";
 import { Montserrat } from "next/font/google";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import type { AppProps } from "next/app";
 import { useEffect, useState } from "react";
+import Lenis from "lenis";
+import gsap from "gsap";
 
 import TopProgressBar from "@/components/TopProgressBar";
 import LiveChat from "@/components/LiveChat";
@@ -42,7 +45,7 @@ const pathToFileMap = {
 
 const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-mont" });
 
-export default function App({ Component, pageProps }) {
+export default function App({ Component, pageProps }: AppProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -57,16 +60,44 @@ export default function App({ Component, pageProps }) {
   }, []);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const { ScrollTrigger } = require("gsap/dist/ScrollTrigger");
+    gsap.registerPlugin(ScrollTrigger);
+
+    const lenis = new Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: "vertical",
+      gestureOrientation: "vertical",
+      smoothWheel: true,
+    });
+
+    lenis.on("scroll", ScrollTrigger.update);
+
+    const gsapTickerCallback = (time: number) => {
+      lenis.raf(time * 1000);
+    };
+    gsap.ticker.add(gsapTickerCallback);
+    gsap.ticker.lagSmoothing(0);
+
+    return () => {
+      lenis.destroy();
+      gsap.ticker.remove(gsapTickerCallback);
+    };
+  }, []);
+
+  useEffect(() => {
     const savedMode = localStorage.getItem("portfolio-nav-mode");
     if (savedMode === "sidebar" || savedMode === "navbar") {
-   
+
       if (window.innerWidth < 1024) {
         setNavMode("navbar");
       } else {
         setNavMode(savedMode);
       }
     } else {
-     
+
       if (window.innerWidth < 1024) {
         setNavMode("navbar");
       }
@@ -99,7 +130,7 @@ export default function App({ Component, pageProps }) {
         if (Array.isArray(parsed) && parsed.length > 0) {
           tabs = parsed;
         }
-      } catch (e) {}
+      } catch (e) { }
     }
     const currentFile = pathToFileMap[router.pathname];
     if (currentFile && !tabs.includes(currentFile)) {
@@ -175,32 +206,31 @@ export default function App({ Component, pageProps }) {
         {navMode === "navbar" && <Navbar navMode={navMode} setNavMode={handleSetNavMode} />}
         {navMode === "navbar" && <div className="h-20 lg:h-16" />}
         <LiveChat />
-        
+
         {/* Location & Time Widget */}
         <div className="fixed top-6 right-6 lg:top-4 lg:left-4 lg:right-auto z-[60] pointer-events-auto">
           <LocationTimeWidget />
         </div>
-        
+
         <div className="flex w-full relative">
           {navMode === "sidebar" && (
-            <Sidebar 
-              isOpen={isSidebarOpen} 
-              setIsOpen={setIsSidebarOpen} 
-              activeTab={activeTab} 
-              setActiveTab={setActiveTab} 
+            <Sidebar
+              isOpen={isSidebarOpen}
+              setIsOpen={setIsSidebarOpen}
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
               navMode={navMode}
               setNavMode={handleSetNavMode}
               openTabs={openTabs}
               handleCloseTab={handleCloseTab}
             />
           )}
-          
-          <div 
-            className={`flex-grow w-full relative transition-all duration-300 ease-in-out flex flex-col ${
-              navMode === "sidebar"
-                ? isSidebarOpen ? "pl-[270px] lg:pl-[50px]" : "pl-[50px]"
-                : "pl-0"
-            }`}
+
+          <div
+            className={`flex-grow w-full relative transition-all duration-300 ease-in-out flex flex-col ${navMode === "sidebar"
+              ? isSidebarOpen ? "pl-[270px] lg:pl-[50px]" : "pl-[50px]"
+              : "pl-0"
+              }`}
             style={{ minHeight: navMode === "navbar" ? 'calc(100vh - 5rem)' : '100vh' }}
           >
             {navMode === "sidebar" && (
@@ -232,11 +262,10 @@ export default function App({ Component, pageProps }) {
                       <div
                         key={tabName}
                         onClick={() => router.push(fileInfo.path)}
-                        className={`flex items-center gap-2 px-4 h-full cursor-pointer transition-colors relative group min-w-[120px] max-w-[160px] ${
-                          isActive 
-                            ? "bg-white/5 text-white border-t-[2px] border-t-blue-500 font-medium" 
-                            : "hover:bg-white/5 hover:text-zinc-200"
-                        }`}
+                        className={`flex items-center gap-2 px-4 h-full cursor-pointer transition-colors relative group min-w-[120px] max-w-[160px] ${isActive
+                          ? "bg-white/5 text-white border-t-[2px] border-t-blue-500 font-medium"
+                          : "hover:bg-white/5 hover:text-zinc-200"
+                          }`}
                       >
                         <Icon size={14} className={fileInfo.color} />
                         <span className="truncate flex-1">{tabName}</span>

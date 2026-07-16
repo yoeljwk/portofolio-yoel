@@ -8,6 +8,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faReact, faInstagram, faLinkedinIn, faGithub } from "@fortawesome/free-brands-svg-icons";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { mockComponentFiles as componentFiles, mockStyleFiles as styleFiles, mockRootFiles } from "@/data/mockFiles";
 
 const TsxIcon = ({ size, className }: { size?: number; className?: string }) => (
   <FontAwesomeIcon
@@ -147,31 +148,10 @@ export default function Sidebar({
     { name: "guestbook.tsx", path: "/guestbook", label: "Guestbook", icon: TsxIcon, color: "text-cyan-400" },
   ];
 
-  const componentFiles = [
-    { name: "Navbar.tsx", content: `// Navbar.tsx\nimport Link from "next/link";\nexport default function Navbar() {\n  return (\n    <header className="fixed top-0 z-40 bg-transparent px-32">\n      <nav className="bg-dark/90 shadow-lg border border-light">\n        <CustomLink href="/" title="Home" />\n        <CustomLink href="/about" title="About" />\n        <CustomLink href="/projects" title="Projects" />\n      </nav>\n    </header>\n  );\n}` },
-    { name: "LiveChat.tsx", content: `// LiveChat.tsx\nexport default function LiveChat() {\n  return (\n    <div className="live-chat-panel border border-neutral-800 bg-black/95">\n      <h3>Live Guestbook Chat</h3>\n    </div>\n  );\n}` },
-    { name: "FloatingBackground.tsx", content: `// FloatingBackground.tsx\nexport default function FloatingBackground() {\n  return (\n    <div className="pointer-events-none fixed inset-0 -z-10 bg-black overflow-hidden">\n    </div>\n  );\n}` },
-    { name: "Sidebar.tsx", content: `// Sidebar.tsx\nexport default function Sidebar() {\n  return (\n    <div className="flex h-screen bg-[#1e1e1e] text-[#cccccc] font-sans">\n    </div>\n  );\n}` }
-  ];
-
-  const styleFiles = [
-    { name: "globals.css", content: `/* globals.css */\n@tailwind base;\n@tailwind components;\n@tailwind utilities;\n\nhtml, body {\n  overflow-x: hidden;\n  background-color: black;\n  color: #f5f5f5;\n}\n\n* {\n  box-sizing: border-box;\n}` }
-  ];
-
-  const rootFiles = [
-    {
-      name: "package.json",
-      icon: Braces,
-      color: "text-yellow-500",
-      content: `{\n  "name": "yoel-portfolio",\n  "version": "1.0.0",\n  "dependencies": {\n    "next": "^14.2.7",\n    "react": "18.3.1",\n    "framer-motion": "^11.3.31",\n    "lucide-react": "^0.563.0",\n    "tailwindcss": "^3.4.10"\n  },\n  "devDependencies": {\n    "typescript": "^5.5.4"\n  }\n}`
-    },
-    {
-      name: "tailwind.config.js",
-      icon: Terminal,
-      color: "text-sky-400",
-      content: `// tailwind.config.js\nmodule.exports = {\n  content: ["./src/**/*.{js,ts,jsx,tsx}"],\n  theme: {\n    extend: {\n      colors: {\n        dark: "#1b1b1b",\n        light: "#f5f5f5",\n        primary: "#2545d0"\n      }\n    }\n  }\n};`
-    }
-  ];
+  const rootFiles = mockRootFiles.map((file) => ({
+    ...file,
+    icon: file.name === "package.json" ? Braces : Terminal,
+  }));
 
   const activePageFile = pageFiles.find(file => file.path === currentPath) || pageFiles[0];
 

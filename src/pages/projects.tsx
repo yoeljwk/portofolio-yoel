@@ -153,7 +153,9 @@ const FeaturedProject = ({
               <Image
                 src={img}
                 alt={title}
-                className="w-full h-full object-cover transition-transform duration-500"
+                fill
+                sizes="(max-width: 768px) 100vw, 280px"
+                className="object-cover transition-transform duration-500"
                 draggable={false}
               />
             </a>
@@ -162,7 +164,9 @@ const FeaturedProject = ({
               <Image
                 src={img}
                 alt={title}
-                className="w-full h-full object-cover"
+                fill
+                sizes="(max-width: 768px) 100vw, 280px"
+                className="object-cover"
                 draggable={false}
               />
             </div>
@@ -179,7 +183,9 @@ const FeaturedProject = ({
   );
 };
 
-export default function Projects({ isAppLoading = false }: { isAppLoading?: boolean }) {
+export default function Projects({ isAppLoading = false, initialProjects = [] }: { isAppLoading?: boolean; initialProjects: any[] }) {
+  const displayProjects = initialProjects.length > 0 ? initialProjects : [];
+
   return (
     <>
       <Head>
@@ -213,60 +219,23 @@ export default function Projects({ isAppLoading = false }: { isAppLoading?: bool
               }
             `}</style>
             <div className="flex flex-col border-t border-light/10 project-list">
-              <FeaturedProject
-                num="01"
-                type="Design & Development"
-                tools="Next.js"
-                title="Word Wide Global Indonesia"
-                summary="Website company profile for PT. World Wide Global Indonesia, designed to showcase global logistics and import services."
-                img={proj4}
-                link="https://www.wwgimpor.id/"
-              />
-              <FeaturedProject
-                num="02"
-                type="Development"
-                tools="React.js | Tailwind"
-                title="Maritim X Academy"
-                summary="An interactive online academy platform developed for Maritim Muda Nusantara, supporting maritime education."
-                img={proj5}
-                link="https://maritimx.id/"
-              />
-              <FeaturedProject
-                num="03"
-                type="Design & Development"
-                tools="Next.js | CSS"
-                title="Turbines HRIS"
-                summary="A robust human resource information system built for Maritim Muda Nusantara to streamline administrative workflows."
-                img={proj6}
-                link="https://turbines.maritimepreneur.com/login"
-              />
-              <FeaturedProject
-                num="04"
-                type="Design & Development"
-                tools="Vue.js | Laravel"
-                title="DICEPATIN Logistics"
-                summary="A comprehensive shipping and tracking application developed to check delivery rates and track courier shipments."
-                img={proj3}
-                link=""
-              />
-              <FeaturedProject
-                num="05"
-                type="Cloning Development"
-                tools="Tailwind | HTML"
-                title="Rinso.com Clone"
-                summary="A responsive front-end clone of the official Rinso website, developed using Tailwind CSS for clean layout parity."
-                img={proj2}
-                link=""
-              />
-              <FeaturedProject
-                num="06"
-                type="Design & Development"
-                tools="Vue.js | Laravel"
-                title="Jaringan Doa Platform"
-                summary="A community-focused spiritual platform designed for users to share and participate in mutual prayer networks."
-                img={proj1}
-                link=""
-              />
+              {displayProjects.map((proj, index) => (
+                <FeaturedProject
+                  key={proj.id || index}
+                  num={String(index + 1).padStart(2, "0")}
+                  type="Design & Development"
+                  tools={proj.tech_stack}
+                  title={proj.title}
+                  summary={proj.description}
+                  img={proj.thumbnail}
+                  link={proj.demo_url}
+                />
+              ))}
+              {displayProjects.length === 0 && (
+                <p className="text-center text-light/50 py-12 font-['Share_Tech_Mono'] uppercase text-xs">
+                  No projects loaded.
+                </p>
+              )}
             </div>
           </div>
 
@@ -281,3 +250,45 @@ export default function Projects({ isAppLoading = false }: { isAppLoading?: bool
     </>
   );
 }
+
+export async function getStaticProps() {
+  try {
+    const { db } = await import("@/lib/firebase");
+    const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
+
+    const projectsCollection = collection(db, "projects");
+    const q = query(projectsCollection, orderBy("display_order", "asc"));
+    const snapshot = await getDocs(q);
+
+    const projects = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        title: data.title || "",
+        description: data.description || "",
+        thumbnail: data.thumbnail || "",
+        tech_stack: data.tech_stack || "",
+        github_url: data.github_url || "",
+        demo_url: data.demo_url || "",
+        featured: data.featured || false,
+        display_order: data.display_order || 999
+      };
+    });
+
+    return {
+      props: {
+        initialProjects: projects
+      },
+      revalidate: 60
+    };
+  } catch (error) {
+    console.error("Failed to fetch projects for static props:", error);
+    return {
+      props: {
+        initialProjects: []
+      },
+      revalidate: 10
+    };
+  }
+}
+

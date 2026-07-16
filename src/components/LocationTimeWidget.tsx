@@ -20,7 +20,7 @@ export default function LocationTimeWidget() {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 text-xs font-semibold text-light/80 bg-black/50 backdrop-blur-md px-3.5 py-2 rounded-full  shadow-lg">
+    <div className="flex items-center gap-2 text-xs font-semibold text-light/80 sm:hidden backdrop-blur-md px-3.5 py-2 shadow-lg">
       <span className="whitespace-nowrap mr-2">Jakarta, Indonesia</span>
       <span className="font-mono tracking-wider">{time || "12:00 AM GMT+7"}</span>
     </div>

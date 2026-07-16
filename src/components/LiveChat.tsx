@@ -45,13 +45,6 @@ export default function LiveChat() {
 
   return (
     <>
-      <style>{`
-        .livechat-scroll::-webkit-scrollbar { width: 4px; }
-        .livechat-scroll::-webkit-scrollbar-track { background: transparent; }
-        .livechat-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
-        .livechat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-      `}</style>
-
       <AnimatePresence>
         {isOpen && (
           <motion.div

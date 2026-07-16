@@ -1,5 +1,3 @@
-import AnimatedText from "@/components/AnimatedText";
-import TypewriterText from "@/components/TypewriterText";
 import Layout from "@/components/Layout";
 import Head from "next/head";
 import Image from "next/image";

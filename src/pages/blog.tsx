@@ -1,6 +1,5 @@
 import Layout from "@/components/Layout";
 import Head from "next/head";
-import AnimatedText from "@/components/AnimatedText";
 import SplitTextMori from "@/components/SplitTextMori";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -8,77 +7,34 @@ import Image from "next/image";
 import { Calendar, Clock, Search } from "lucide-react";
 import { useState, useMemo } from "react";
 
-const blogPosts = [
-  {
-    id: 1,
-    title: "Getting Started with Next.js 14",
-    excerpt: "Learn how to build modern web applications with the latest features of Next.js 14.",
-    date: "2024-01-15",
-    readTime: "5 min read",
-    category: "Web Development",
-    image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
-  },
-  {
-    id: 2,
-    title: "Mastering Tailwind CSS",
-    excerpt: "Tips and tricks to become more productive with Tailwind CSS in your projects.",
-    date: "2024-01-10",
-    readTime: "4 min read",
-    category: "CSS",
-    image: "https://images.unsplash.com/photo-1507721999472-8ed4421c4af2?w=800&q=80",
-  },
-  {
-    id: 3,
-    title: "React Performance Optimization",
-    excerpt: "Best practices for optimizing React applications and improving user experience.",
-    date: "2024-01-05",
-    readTime: "6 min read",
-    category: "React",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=800&q=80",
-  },
-  {
-    id: 4,
-    title: "TypeScript Best Practices",
-    excerpt: "Essential TypeScript patterns and practices for building robust applications.",
-    date: "2024-01-01",
-    readTime: "7 min read",
-    category: "TypeScript",
-    image: "https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=800&q=80",
-  },
-  {
-    id: 5,
-    title: "Building RESTful APIs",
-    excerpt: "A comprehensive guide to designing and implementing RESTful APIs.",
-    date: "2023-12-28",
-    readTime: "8 min read",
-    category: "Backend",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80",
-  },
-  {
-    id: 6,
-    title: "Modern CSS Techniques",
-    excerpt: "Explore modern CSS features like Grid, Flexbox, and custom properties.",
-    date: "2023-12-20",
-    readTime: "5 min read",
-    category: "CSS",
-    image: "https://images.unsplash.com/photo-1523437113738-bbd3cc89fb19?w=800&q=80",
-  },
-];
+import { db } from "@/lib/firebase";
+import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
-export default function Blog({ isAppLoading = false }: { isAppLoading?: boolean }) {
+interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  readTime: string;
+  category: string;
+  image: string;
+}
+
+export default function Blog({ isAppLoading = false, initialPosts = [] }: { isAppLoading?: boolean; initialPosts: BlogPost[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  const categories = ["All", ...Array.from(new Set(blogPosts.map(post => post.category)))];
+  const categories = ["All", ...Array.from(new Set(initialPosts.map(post => post.category)))];
 
   const filteredPosts = useMemo(() => {
-    return blogPosts.filter(post => {
+    return initialPosts.filter(post => {
       const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesCategory = selectedCategory === "All" || post.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, initialPosts]);
+
 
   return (
     <>
@@ -213,3 +169,47 @@ export default function Blog({ isAppLoading = false }: { isAppLoading?: boolean 
     </>
   );
 }
+
+export async function getStaticProps() {
+  try {
+    const { db } = await import("@/lib/firebase");
+    const { collection, getDocs } = await import("firebase/firestore");
+    
+    const blogsCollection = collection(db, "blogs");
+    const snapshot = await getDocs(blogsCollection);
+    const posts = snapshot.docs
+      .map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          title: data.title || "",
+          excerpt: data.excerpt || "",
+          date: data.published_at || data.createdAt || "",
+          readTime: data.read_time || "",
+          category: data.category || "",
+          image: data.thumbnail || "https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=80",
+          status: data.status || "draft",
+          publishedAt: data.published_at || ""
+        };
+      })
+      .filter(post => post.status === "published")
+      .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt))
+      .map(({ status, publishedAt, ...rest }) => rest); // remove temp sorting fields
+
+    return {
+      props: {
+        initialPosts: posts
+      },
+      revalidate: 60
+    };
+  } catch (error) {
+    console.error("Failed to fetch blogs for static props:", error);
+    return {
+      props: {
+        initialPosts: []
+      },
+      revalidate: 10
+    };
+  }
+}
+

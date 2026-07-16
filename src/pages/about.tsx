@@ -7,12 +7,18 @@ import { useInView, useMotionValue, useSpring, motion, AnimatePresence, useScrol
 import { useEffect, useRef, useState } from "react";
 import Skills from "@/components/Skills";
 import Experience from "@/components/Experience";
-import AnimatedText from "@/components/AnimatedText";
 import TypingCode from "@/components/TypingCode";
 import SplitTextMori from "@/components/SplitTextMori";
+import ScrambleText from "@/components/ScrambleText";
 
-const FloatingImages = ({ isHovered }) => {
-  const [positions, setPositions] = useState([]);
+interface Position {
+  x: number;
+  y: number;
+  rotate: number;
+}
+
+const FloatingImages = ({ isHovered }: { isHovered: boolean }) => {
+  const [positions, setPositions] = useState<Position[]>([]);
 
   const images = [
     { src: "/images/shape/shapehtml.png", side: "left", index: 0 },
@@ -79,8 +85,8 @@ const FloatingImages = ({ isHovered }) => {
   );
 };
 
-function AnimatedNumberFramerMotion({ value }) {
-  const ref = useRef(null);
+function AnimatedNumberFramerMotion({ value }: { value: number }) {
+  const ref = useRef<HTMLSpanElement>(null);
   const motionValue = useMotionValue(0);
   const springValue = useSpring(motionValue, { duration: 3000 });
   const isInView = useInView(ref, { once: true });
@@ -92,8 +98,8 @@ function AnimatedNumberFramerMotion({ value }) {
 
   useEffect(
     () =>
-      springValue.on("change", (latest) => {
-        if (ref.current && latest.toFixed(0) <= value) {
+      springValue.on("change", (latest: number) => {
+        if (ref.current && Number(latest.toFixed(0)) <= value) {
           ref.current.textContent = latest.toFixed(0);
         }
       }),
@@ -103,7 +109,7 @@ function AnimatedNumberFramerMotion({ value }) {
   return <span ref={ref} />;
 }
 
-export default function About({ isAppLoading = false }: { isAppLoading?: boolean }) {
+export default function About({ isAppLoading = false, experiences = [] }: { isAppLoading?: boolean; experiences: any[] }) {
   const [activeView, setActiveView] = useState("vscode");
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -148,7 +154,7 @@ export default function About({ isAppLoading = false }: { isAppLoading?: boolean
   const { scrollY } = useScroll();
   const opacity = useTransform(scrollY, [0, 800], [1, 0]);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
     const localX = e.clientX - rect.left;
@@ -202,13 +208,13 @@ export default function About({ isAppLoading = false }: { isAppLoading?: boolean
                 className="col-span-3 flex flex-col items-start justify-start xl:col-span-4 md:order-2 
               md:col-span-8 min-h-[630px] md:min-h-0"
               >
-         
+
                 <div className="flex gap-3 mb-6 md:gap-2">
                   <button
                     onClick={() => setActiveView("vscode")}
                     className={`px-4 py-2 rounded-lg font-semibold transition-all md:px-3 md:py-1.5 md:text-sm ${activeView === "vscode"
-                        ? "bg-[#007acc] text-white"
-                        : "bg-dark border-2 border-light/20 text-light hover:border-[#007acc]"
+                      ? "bg-[#007acc] text-white"
+                      : "bg-dark border-2 border-light/20 text-light hover:border-[#007acc]"
                       }`}
                   >
                     VS Code
@@ -216,8 +222,8 @@ export default function About({ isAppLoading = false }: { isAppLoading?: boolean
                   <button
                     onClick={() => setActiveView("run")}
                     className={`px-4 py-2 rounded-lg font-semibold transition-all md:px-3 md:py-1.5 md:text-sm ${activeView === "run"
-                        ? "bg-[#16a34a] text-white"
-                        : "bg-dark border-2 border-light/20 text-light hover:border-[#16a34a]"
+                      ? "bg-[#16a34a] text-white"
+                      : "bg-dark border-2 border-light/20 text-light hover:border-[#16a34a]"
                       }`}
                   >
                     Run
@@ -250,18 +256,10 @@ export default function About({ isAppLoading = false }: { isAppLoading?: boolean
                           BIOGRAPHY
                         </h2>
                         <p className="font-medium ">
-                          Web Developer who is experienced in building responsive
-                          and engaging web applications. Skilled in implementing
-                          UI/UX designs into clean and efficient code, and
-                          actively collaborating across teams to create digital
-                          solutions that enhance the user experience. Enthusiastic
-                          about technology, always up to date with the latest
-                          developments, and known for creativity and thoroughness
-                          in solving problems. Ready to make a real contribution
-                          in every project that is carried out.
+                          <ScrambleText text="Web Developer who is experienced in building responsive and engaging web applications. Skilled in implementing UI/UX designs into clean and efficient code, and actively collaborating across teams to create digital solutions that enhance the user experience. Enthusiastic about technology, always up to date with the latest developments, and known for creativity and thoroughness in solving problems. Ready to make a real contribution in every project that is carried out." />
                         </p>
                         <p className="my-4 font-medium">
-                          P.s I like playing music and sports✌️.
+                          <ScrambleText text="P.s I like playing music and sports✌️." delay={300} />
                         </p>
                       </motion.div>
                     )}
@@ -348,10 +346,49 @@ export default function About({ isAppLoading = false }: { isAppLoading?: boolean
               ></div>
             </div>
             <Skills />
-            <Experience />
+            <Experience experiences={experiences} />
           </div>
         </Layout>
       </div>
     </>
   );
 }
+
+export async function getStaticProps() {
+  try {
+    const { db } = await import("@/lib/firebase");
+    const { collection, getDocs, query, orderBy } = await import("firebase/firestore");
+
+    const experiencesCollection = collection(db, "experiences");
+    const q = query(experiencesCollection, orderBy("display_order", "asc"));
+    const snapshot = await getDocs(q);
+
+    const experiences = snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        company: data.company || "",
+        position: data.position || "",
+        time: `${data.start_date || ""} – ${data.end_date || ""}`,
+        work: data.description || "",
+        logo: data.thumbnail || (data.company ? `/images/logo-${String(data.company).toLowerCase().replace(/\s+/g, "")}.png` : ""),
+      };
+    });
+
+    return {
+      props: {
+        experiences
+      },
+      revalidate: 60
+    };
+  } catch (error) {
+    console.error("Failed to fetch experiences for static props:", error);
+    return {
+      props: {
+        experiences: []
+      },
+      revalidate: 10
+    };
+  }
+}
+
