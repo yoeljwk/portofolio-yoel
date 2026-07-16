@@ -1,9 +1,14 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Image from "next/image";
 
 const Skills = () => {
   const [isPaused, setIsPaused] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
   const skills = [
     { name: "HTML", logo: "html.png" },
     { name: "CSS", logo: "css.png" },
@@ -37,11 +42,11 @@ const Skills = () => {
         className="w-full overflow-hidden py-12 mb-16 relative"
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
-        style={{
-          maskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-          WebkitMaskImage: "linear-gradient(to right, transparent, black 10%, black 90%, transparent)",
-        }}
       >
+        {/* Left and Right Fade Overlays for smooth edge transitions (Performance optimized) */}
+        <div className="absolute top-0 left-0 h-full w-[10%] bg-gradient-to-r from-black to-transparent z-10 pointer-events-none" />
+        <div className="absolute top-0 right-0 h-full w-[10%] bg-gradient-to-l from-black to-transparent z-10 pointer-events-none" />
+
         <motion.div
           animate={{ x: isPaused ? undefined : ["0%", "-50%"] }}
           transition={{
@@ -52,7 +57,7 @@ const Skills = () => {
           }}
           className="flex gap-6 whitespace-nowrap"
         >
-          {[...skills, ...skills, ...skills, ...skills].map((skill, index) => (
+          {(isMobile ? [...skills, ...skills] : [...skills, ...skills, ...skills, ...skills]).map((skill, index) => (
             <div
               key={index}
               className="flex items-center gap-3 font-semibold text-light py-3 px-6 rounded-full  text-lg"

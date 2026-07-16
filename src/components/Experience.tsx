@@ -155,6 +155,7 @@ const Experience = () => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    if (window.innerWidth < 1024) return;
 
     const { ScrollTrigger } = require("gsap/dist/ScrollTrigger");
     gsap.registerPlugin(ScrollTrigger);

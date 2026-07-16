@@ -61,10 +61,13 @@ const COLORS = [
 
 export default function FloatingBackground() {
   const [particles, setParticles] = useState<Particle[]>([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const mobile = window.innerWidth < 768;
+    setIsMobile(mobile);
     const generatedParticles: Particle[] = [];
-    const count = 55;
+    const count = mobile ? 15 : 55;
 
     for (let i = 0; i < count; i++) {
       const isIcon = Math.random() > 0.55;
@@ -129,7 +132,7 @@ export default function FloatingBackground() {
               left: `${p.x}%`,
               top: `${p.y}%`,
               fontSize: `${p.size}px`,
-              filter: `drop-shadow(0 0 6px ${p.glowColor})`,
+              filter: isMobile ? undefined : `drop-shadow(0 0 6px ${p.glowColor})`,
             }}
             initial={{
               x: 0,
